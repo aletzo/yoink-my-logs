@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "type": "module",
   "main": "./index.js",
+  "types": "./index.d.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=1 test/**/*.test.js",
     "test:server": "node --test --test-concurrency=1 test/server/*.test.js",
@@ -11,8 +15,10 @@
   },
   "files": [
     "index.js",
+    "index.d.ts",
     "server.js",
-    "public/"
+    "public/",
+    "bin/"
   ],
   "keywords": ["logs", "debug", "sse", "log-viewer"],
   "author": "Alexandros Tzotzolas",

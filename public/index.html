@@ -18,6 +18,92 @@
       font-size: 18px;
       margin: 0 0 16px;
     }
+    
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f1f5f9;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    .search-box input::placeholder {
+      color: #64748b;
+    }
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: transparent;
+      color: #64748b;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+    .filter-btn:hover {
+      border-color: #475569;
+      color: #94a3b8;
+    }
+    .filter-btn.active {
+      color: white;
+    }
+    .filter-btn[data-tag="all"].active {
+      background: #475569;
+      border-color: #475569;
+    }
+    .filter-btn[data-tag="info"].active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+    .filter-btn[data-tag="success"].active {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+    .filter-btn[data-tag="warn"].active {
+      background: #f59e0b;
+      border-color: #f59e0b;
+    }
+    .filter-btn[data-tag="error"].active {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+    .filter-btn[data-tag="debug"].active {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+    }
+    .filter-btn[data-tag="none"].active {
+      background: #6b7280;
+      border-color: #6b7280;
+    }
+    
+    /* Logs */
     #logs {
       list-style: none;
       padding: 0;
@@ -104,11 +190,48 @@
     .json-null, .json-undefined {
       color: #f87171;
     }
+    
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding: 16px 0;
+      text-align: center;
+      color: #475569;
+      font-size: 12px;
+    }
+    .footer a {
+      color: #64748b;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #94a3b8;
+    }
   </style>
 </head>
 <body>
   <h1>yoink my logs</h1>
+  
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="search" placeholder="Search logs...">
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-tag="all">All</button>
+      <button class="filter-btn active" data-tag="info">Info</button>
+      <button class="filter-btn active" data-tag="success">Success</button>
+      <button class="filter-btn active" data-tag="warn">Warn</button>
+      <button class="filter-btn active" data-tag="error">Error</button>
+      <button class="filter-btn active" data-tag="debug">Debug</button>
+      <button class="filter-btn active" data-tag="none">No Tag</button>
+    </div>
+  </div>
+  
   <ul id="logs"></ul>
+  
+  <footer class="footer">
+    <a href="https://mydevnull.net" target="_blank">~/dev/null</a>
+  </footer>
+  
   <script src="/client.js"></script>
 </body>
 </html>

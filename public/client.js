@@ -1,4 +1,5 @@
 const el = document.getElementById("logs")
+const searchInput = document.getElementById("search")
 const events = new EventSource("/events")
 
 const tagColors = {
@@ -7,6 +8,67 @@ const tagColors = {
   error: "#ef4444",
   debug: "#8b5cf6",
   success: "#22c55e"
+}
+
+let allLogs = []
+let searchQuery = ""
+let activeTags = new Set(["info", "warn", "error", "debug", "success", "none"])
+
+// Initialize filter buttons
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tag = btn.dataset.tag
+    
+    if (tag === "all") {
+      const allActive = activeTags.size === 6
+      if (allActive) {
+        activeTags.clear()
+        document.querySelectorAll(".filter-btn:not([data-tag='all'])").forEach(b => b.classList.remove("active"))
+      } else {
+        activeTags = new Set(["info", "warn", "error", "debug", "success", "none"])
+        document.querySelectorAll(".filter-btn:not([data-tag='all'])").forEach(b => b.classList.add("active"))
+      }
+      btn.classList.toggle("active", !allActive)
+    } else {
+      if (activeTags.has(tag)) {
+        activeTags.delete(tag)
+        btn.classList.remove("active")
+      } else {
+        activeTags.add(tag)
+        btn.classList.add("active")
+      }
+      // Update "all" button state
+      const allBtn = document.querySelector(".filter-btn[data-tag='all']")
+      allBtn.classList.toggle("active", activeTags.size === 6)
+    }
+    
+    renderLogs()
+  })
+})
+
+// Search input
+searchInput.addEventListener("input", (e) => {
+  searchQuery = e.target.value.toLowerCase()
+  renderLogs()
+})
+
+function matchesFilter(log) {
+  const logTag = log.tag || "none"
+  if (!activeTags.has(logTag)) return false
+  
+  if (searchQuery) {
+    const searchText = JSON.stringify(log).toLowerCase()
+    if (!searchText.includes(searchQuery)) return false
+  }
+  
+  return true
+}
+
+function renderLogs() {
+  el.innerHTML = ""
+  allLogs.filter(matchesFilter).forEach(log => {
+    el.appendChild(createLogElement(log))
+  })
 }
 
 function createJsonTree(data, collapsed = true) {
@@ -117,8 +179,7 @@ function createCollapsible(data, type, collapsed) {
   return container
 }
 
-events.onmessage = (e) => {
-  const log = JSON.parse(e.data)
+function createLogElement(log) {
   const li = document.createElement("li")
   
   const header = document.createElement("div")
@@ -151,6 +212,15 @@ events.onmessage = (e) => {
     li.appendChild(dataContainer)
   }
   
-  el.appendChild(li)
-  window.scrollTo(0, document.body.scrollHeight)
+  return li
+}
+
+events.onmessage = (e) => {
+  const log = JSON.parse(e.data)
+  allLogs.push(log)
+  
+  if (matchesFilter(log)) {
+    el.appendChild(createLogElement(log))
+    window.scrollTo(0, document.body.scrollHeight)
+  }
 }

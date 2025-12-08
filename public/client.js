@@ -246,6 +246,17 @@ function createLogElement(log) {
   msg.textContent = log.message
   header.appendChild(msg)
   
+  const copyBtn = document.createElement("button")
+  copyBtn.className = "copy-btn"
+  copyBtn.textContent = "copy"
+  copyBtn.addEventListener("click", async () => {
+    const content = JSON.stringify(log, null, 2)
+    await navigator.clipboard.writeText(content)
+    copyBtn.textContent = "copied!"
+    setTimeout(() => copyBtn.textContent = "copy", 1500)
+  })
+  header.appendChild(copyBtn)
+  
   li.appendChild(header)
   
   if (log.data !== undefined) {

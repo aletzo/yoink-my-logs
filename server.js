@@ -87,6 +87,12 @@ function sendHistory(res) {
 
 function followFile(res) {
   const file = todayFile()
+  ensureDir()
+  
+  // Create file if it doesn't exist
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, "")
+  }
 
   let pos = 0
   try {

@@ -99,9 +99,11 @@ export function pushLog(log) {
     // File doesn't exist yet, use default
   }
   
-  fs.appendFile(targetFile, line, (err) => {
-    if (err) console.error("yoink: Failed to write log:", err.message)
-  })
+  try {
+    fs.appendFileSync(targetFile, line)
+  } catch (err) {
+    console.error("yoink: Failed to write log:", err.message)
+  }
 }
 
 export function startServer() {

@@ -49,6 +49,13 @@
       padding: 20px;
       font-size: 14px;
       transition: background 0.2s, color 0.2s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main-content {
+      flex: 1;
     }
     
     /* Sticky Top Bar */
@@ -423,36 +430,37 @@
   </script>
 </head>
 <body>
-  <div class="top-bar">
-    <div class="header">
-      <h1>yoink my logs</h1>
-      <div class="theme-toggle">
-        <button class="theme-btn" data-mode="light" title="Light">light️</button>
-        <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
-        <button class="theme-btn" data-mode="system" title="System">system️</button>
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="header">
+        <h1>yoink my logs</h1>
+        <div class="theme-toggle">
+          <button class="theme-btn" data-mode="light" title="Light">light️</button>
+          <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
+          <button class="theme-btn" data-mode="system" title="System">system️</button>
+        </div>
+      </div>
+      
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="search" placeholder="Search logs...">
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" data-tag="all">All</button>
+          <button class="filter-btn active" data-tag="info">Info</button>
+          <button class="filter-btn active" data-tag="success">Success</button>
+          <button class="filter-btn active" data-tag="warn">Warn</button>
+          <button class="filter-btn active" data-tag="error">Error</button>
+          <button class="filter-btn active" data-tag="debug">Debug</button>
+          <button class="filter-btn active" data-tag="none">No Tag</button>
+        </div>
+        <button class="clear-btn" id="clear-logs">Clear all</button>
       </div>
     </div>
     
-    <div class="toolbar">
-      <div class="search-box">
-        <input type="text" id="search" placeholder="Search logs...">
-      </div>
-      <div class="filters">
-        <button class="filter-btn active" data-tag="all">All</button>
-        <button class="filter-btn active" data-tag="info">Info</button>
-        <button class="filter-btn active" data-tag="success">Success</button>
-        <button class="filter-btn active" data-tag="warn">Warn</button>
-        <button class="filter-btn active" data-tag="error">Error</button>
-        <button class="filter-btn active" data-tag="debug">Debug</button>
-        <button class="filter-btn active" data-tag="none">No Tag</button>
-      </div>
-      <button class="clear-btn" id="clear-logs">Clear all</button>
-    </div>
-  </div>
-  
-  <div id="empty-state" class="empty-state">
-    <h2>No logs yet</h2>
-    <pre><span class="keyword">import</span> yoink <span class="keyword">from</span> <span class="string">"yoink-my-logs"</span>
+    <div id="empty-state" class="empty-state">
+      <h2>No logs yet</h2>
+      <pre><span class="keyword">import</span> yoink <span class="keyword">from</span> <span class="string">"yoink-my-logs"</span>
 
 <span class="comment">// Basic logging</span>
 <span class="function">yoink</span>(<span class="string">"Hello world"</span>, { userId: <span class="number">123</span> })
@@ -463,11 +471,12 @@ yoink.<span class="function">success</span>(<span class="string">"Task completed
 yoink.<span class="function">warn</span>(<span class="string">"Low memory"</span>)
 yoink.<span class="function">error</span>(<span class="string">"Connection failed"</span>)
 yoink.<span class="function">debug</span>(<span class="string">"Request payload"</span>, data)</pre>
-    <p>Add <code>yoink()</code> calls to your code and logs will appear here in real-time.</p>
-    <p><a href="https://github.com/aletzo/yoink-my-logs" target="_blank">View documentation on GitHub →</a></p>
+      <p>Add <code>yoink()</code> calls to your code and logs will appear here in real-time.</p>
+      <p><a href="https://github.com/aletzo/yoink-my-logs" target="_blank">View documentation on GitHub →</a></p>
+    </div>
+    
+    <ul id="logs"></ul>
   </div>
-  
-  <ul id="logs"></ul>
   
   <footer class="footer">
     <a href="https://mydevnull.net" target="_blank">~/dev/null</a>

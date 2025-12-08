@@ -1,0 +1,31 @@
+{
+  "name": "yoink-my-logs",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.js",
+  "scripts": {
+    "test": "node --test test.js",
+    "demo": "node bin/demo.js"
+  },
+  "files": [
+    "index.js",
+    "server.js",
+    "public/"
+  ],
+  "keywords": ["logs", "debug", "sse", "log-viewer"],
+  "author": "Alexandros Tzotzolas",
+  "description": "Local log viewer without dependencies. Use `yoink()` to write logs and `yoink` to start the browser UI.",
+  "bin": {
+    "yoink": "./bin/ui.js",
+    "yoink-demo": "./bin/demo.js"
+  },
+  "homepage": "https://github.com/aletzo/yoink-my-logs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aletzo/yoink-my-logs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aletzo/yoink-my-logs/issues"
+  },
+  "license": "MIT"
+}

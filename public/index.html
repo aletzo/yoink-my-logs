@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>yoink-my-logs</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, monospace;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 20px;
+      font-size: 14px;
+    }
+    h1 {
+      color: #f8fafc;
+      font-size: 18px;
+      margin: 0 0 16px;
+    }
+    #logs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #logs li {
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .time {
+      color: #64748b;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .tag {
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .message {
+      color: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>yoink my logssss</h1>
+  <ul id="logs"></ul>
+  <script src="/client.js"></script>
+</body>
+</html>

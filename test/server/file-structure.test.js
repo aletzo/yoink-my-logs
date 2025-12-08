@@ -2,12 +2,16 @@ import { test, describe } from "node:test"
 import assert from "node:assert"
 import path from "path"
 import os from "os"
-import { logDir, todayFile, getLogLines, getLastLog, wait } from "../helpers.js"
+import { setupTestDir, logDir, todayFile, getLogLines, getLastLog, wait } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("log file structure", () => {
-  test("logs are stored in ~/.yoink-my-logs/", () => {
-    assert.ok(logDir.includes(".yoink-my-logs"))
-    assert.ok(logDir.startsWith(os.homedir()))
+  test("logs are stored in temp test directory", () => {
+    // Now using temp directory instead of ~/.yoink-my-logs/
+    assert.ok(logDir.includes("yoink-test-logs"))
+    assert.ok(logDir.startsWith(os.tmpdir()))
   })
 
   test("log filename is YYYY-MM-DD.log format", () => {
@@ -35,4 +39,3 @@ describe("log file structure", () => {
     assert.ok("data" in log, "should have data field when provided")
   })
 })
-

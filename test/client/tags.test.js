@@ -1,6 +1,9 @@
 import { test, describe } from "node:test"
 import assert from "node:assert"
-import { getLastLog, wait } from "../helpers.js"
+import { setupTestDir, getLastLog, wait } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("yoink tags", () => {
   test("yoink() without tag has undefined tag", async () => {
@@ -77,4 +80,3 @@ describe("yoink tags", () => {
     assert.strictEqual(log.tag, "success")
   })
 })
-

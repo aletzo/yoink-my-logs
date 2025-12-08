@@ -2,7 +2,39 @@ import fs from "fs"
 import path from "path"
 import os from "os"
 
-export const logDir = path.join(os.homedir(), ".yoink-my-logs")
+// Use temp directory for tests, configurable via env var
+export const logDir = process.env.YOINK_LOG_DIR || path.join(os.tmpdir(), "yoink-test-logs")
+
+export function setupTestDir() {
+  // Set env var before any imports of server.js
+  process.env.YOINK_LOG_DIR = logDir
+  
+  // Create the test directory
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true })
+  }
+}
+
+export function cleanupTestDir() {
+  // Remove all files in the test directory
+  try {
+    const files = fs.readdirSync(logDir)
+    for (const file of files) {
+      fs.unlinkSync(path.join(logDir, file))
+    }
+  } catch {
+    // Directory might not exist
+  }
+}
+
+export function teardownTestDir() {
+  // Remove the entire test directory
+  try {
+    fs.rmSync(logDir, { recursive: true, force: true })
+  } catch {
+    // Directory might not exist
+  }
+}
 
 export function todayPrefix() {
   const d = new Date()
@@ -73,4 +105,3 @@ export function cleanupRotatedFiles() {
 }
 
 export const wait = (ms) => new Promise(r => setTimeout(r, ms))
-

@@ -1,5 +1,9 @@
 import { test, describe } from "node:test"
 import assert from "node:assert"
+import { setupTestDir } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("server exports", () => {
   test("exports pushLog function", async () => {
@@ -12,4 +16,3 @@ describe("server exports", () => {
     assert.strictEqual(typeof server.startServer, "function")
   })
 })
-

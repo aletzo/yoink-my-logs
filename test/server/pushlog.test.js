@@ -1,7 +1,10 @@
 import { test, describe } from "node:test"
 import assert from "node:assert"
 import fs from "fs"
-import { logDir, getLogLines, wait } from "../helpers.js"
+import { setupTestDir, logDir, getLogLines, wait } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("pushLog()", () => {
   test("creates log directory if it does not exist", async () => {
@@ -115,4 +118,3 @@ describe("pushLog()", () => {
     }
   })
 })
-

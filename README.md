@@ -42,10 +42,24 @@ Open [http://localhost:7337](http://localhost:7337) to see your logs stream in r
 
 ## Configuration
 
-Set the port with an environment variable:
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `YOINK_PORT` | `7337` | Port for the web UI |
+| `YOINK_LOG_DIR` | `~/.yoink-my-logs` | Directory where log files are stored |
+
+### Examples
 
 ```bash
+# Custom port
 YOINK_PORT=8080 npx yoink
+
+# Custom log directory
+YOINK_LOG_DIR=/tmp/my-logs npx yoink
+
+# Both
+YOINK_PORT=8080 YOINK_LOG_DIR=/var/log/yoink npx yoink
 ```
 
 Default port is `7337`.

@@ -11,8 +11,8 @@ let port = parseInt(process.env.YOINK_PORT, 10)
 if (isNaN(port) || port < 1 || port > 65535) {
   port = 7337
 }
-const homedir = os.homedir()
-const dir = path.join(homedir, ".yoink-my-logs")
+// Allow overriding log directory for testing
+const dir = process.env.YOINK_LOG_DIR || path.join(os.homedir(), ".yoink-my-logs")
 const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
 
 function todayPrefix() {
@@ -78,6 +78,91 @@ function ensureDir() {
 
 const MAX_LOG_SIZE = 100000 // 100KB limit per log entry
 
+const securityHeaders = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY"
+}
+
+export function clearTodayLogs(res) {
+  const files = getTodayFiles()
+  
+  try {
+    for (const fileName of files) {
+      const filePath = path.join(dir, fileName)
+      fs.truncateSync(filePath, 0)
+    }
+    res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders })
+    res.end(JSON.stringify({ success: true }))
+  } catch (err) {
+    console.error("yoink: Failed to clear logs:", err.message)
+    res.writeHead(500, { "Content-Type": "application/json", ...securityHeaders })
+    res.end(JSON.stringify({ success: false, error: err.message }))
+  }
+}
+
+export function deleteLog(req, res) {
+  let body = ""
+  req.on("data", chunk => body += chunk)
+  req.on("end", () => {
+    try {
+      const { timestamp, message } = JSON.parse(body)
+      if (!timestamp || !message) {
+        res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders })
+        res.end(JSON.stringify({ success: false, error: "Missing timestamp or message" }))
+        return
+      }
+      
+      const files = getTodayFiles()
+      let deleted = false
+      
+      for (const fileName of files) {
+        const filePath = path.join(dir, fileName)
+        try {
+          const content = fs.readFileSync(filePath, "utf8")
+          const lines = content.split("\n")
+          const filteredLines = []
+          
+          for (const line of lines) {
+            if (!line.trim()) {
+              filteredLines.push(line)
+              continue
+            }
+            
+            // Only delete the first match
+            if (!deleted) {
+              try {
+                const log = JSON.parse(line)
+                if (log.timestamp === timestamp && log.message === message) {
+                  deleted = true
+                  continue // Skip this line (delete it)
+                }
+              } catch {
+                // Not valid JSON, keep it
+              }
+            }
+            
+            filteredLines.push(line)
+          }
+          
+          if (deleted) {
+            fs.writeFileSync(filePath, filteredLines.join("\n"))
+            break
+          }
+        } catch {
+          // File doesn't exist or can't be read, skip it
+        }
+      }
+      
+      res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders })
+      res.end(JSON.stringify({ success: deleted }))
+    } catch (err) {
+      console.error("yoink: Failed to delete log:", err.message)
+      res.writeHead(500, { "Content-Type": "application/json", ...securityHeaders })
+      res.end(JSON.stringify({ success: false, error: err.message }))
+    }
+  })
+}
+
 export function pushLog(log) {
   ensureDir()
   const line = JSON.stringify(log) + "\n"
@@ -126,6 +211,16 @@ export function startServer() {
       return
     }
 
+    if (parsed.pathname === "/clear" && req.method === "POST") {
+      clearTodayLogs(res)
+      return
+    }
+
+    if (parsed.pathname === "/delete" && req.method === "POST") {
+      deleteLog(req, res)
+      return
+    }
+
     res.writeHead(404)
     res.end()
   })
@@ -138,11 +233,6 @@ export function startServer() {
     console.log(`  → Logs:    ~/.yoink-my-logs/`)
     console.log()
   })
-}
-
-const securityHeaders = {
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY"
 }
 
 function startStream(res) {

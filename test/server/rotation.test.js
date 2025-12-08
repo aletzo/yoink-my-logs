@@ -2,7 +2,10 @@ import { test, describe } from "node:test"
 import assert from "node:assert"
 import fs from "fs"
 import path from "path"
-import { logDir, todayPrefix, getLogLines, cleanupRotatedFiles, wait } from "../helpers.js"
+import { setupTestDir, logDir, todayPrefix, getLogLines, cleanupRotatedFiles, wait } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("log rotation", () => {
   test("rotated files follow YYYY-MM-DD_N.log format", () => {
@@ -140,4 +143,3 @@ describe("log rotation", () => {
     assert.strictEqual(after, before + 1, "normal sized log entry should be written")
   })
 })
-

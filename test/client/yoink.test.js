@@ -1,6 +1,9 @@
 import { test, describe } from "node:test"
 import assert from "node:assert"
-import { getLogLines, getLastLog, wait } from "../helpers.js"
+import { setupTestDir, getLogLines, getLastLog, wait } from "../helpers.js"
+
+// Set up temp directory before any imports
+setupTestDir()
 
 describe("yoink()", () => {
   test("writes a log entry with message and timestamp", async () => {
@@ -78,4 +81,3 @@ describe("yoink()", () => {
     assert.strictEqual(log.data.env, "🔥 production")
   })
 })
-

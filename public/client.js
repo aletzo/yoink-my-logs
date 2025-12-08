@@ -1,6 +1,7 @@
 const el = document.getElementById("logs")
 const emptyState = document.getElementById("empty-state")
 const searchInput = document.getElementById("search")
+const clearBtn = document.getElementById("clear-logs")
 const events = new EventSource("/events")
 
 const tagColors = {
@@ -86,6 +87,38 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 searchInput.addEventListener("input", (e) => {
   searchQuery = e.target.value.toLowerCase()
   renderLogs()
+})
+
+// Clear logs button
+clearBtn.addEventListener("click", async () => {
+  if (!confirm("Clear all logs from today's file?")) return
+  
+  clearBtn.disabled = true
+  clearBtn.textContent = "Clearing..."
+  
+  try {
+    const res = await fetch("/clear", { method: "POST" })
+    const data = await res.json()
+    
+    if (data.success) {
+      allLogs = []
+      renderLogs()
+      clearBtn.textContent = "Cleared!"
+      setTimeout(() => {
+        clearBtn.textContent = "Clear"
+        clearBtn.disabled = false
+      }, 1500)
+    } else {
+      throw new Error(data.error || "Failed to clear logs")
+    }
+  } catch (err) {
+    console.error("yoink: Failed to clear logs:", err.message)
+    clearBtn.textContent = "Error!"
+    setTimeout(() => {
+      clearBtn.textContent = "Clear"
+      clearBtn.disabled = false
+    }, 1500)
+  }
 })
 
 function matchesFilter(log) {
@@ -256,6 +289,41 @@ function createLogElement(log) {
     setTimeout(() => copyBtn.textContent = "copy", 1500)
   })
   header.appendChild(copyBtn)
+  
+  const deleteBtn = document.createElement("button")
+  deleteBtn.className = "delete-btn"
+  deleteBtn.textContent = "×"
+  deleteBtn.title = "Delete this log"
+  deleteBtn.addEventListener("click", async () => {
+    deleteBtn.disabled = true
+    deleteBtn.textContent = "..."
+    
+    try {
+      const res = await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timestamp: log.timestamp, message: log.message })
+      })
+      const data = await res.json()
+      
+      if (data.success) {
+        // Remove from local array
+        const index = allLogs.findIndex(l => l.timestamp === log.timestamp && l.message === log.message)
+        if (index !== -1) allLogs.splice(index, 1)
+        // Remove from DOM
+        li.remove()
+        updateEmptyState()
+      } else {
+        throw new Error(data.error || "Failed to delete log")
+      }
+    } catch (err) {
+      console.error("yoink: Failed to delete log:", err.message)
+      deleteBtn.textContent = "!"
+      deleteBtn.disabled = false
+      setTimeout(() => deleteBtn.textContent = "×", 1500)
+    }
+  })
+  header.appendChild(deleteBtn)
   
   li.appendChild(header)
   

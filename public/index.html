@@ -2,21 +2,93 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>yoink-my-logs</title>
+  <title>yoink my logs</title>
   <style>
     * { box-sizing: border-box; }
+    
+    /* Theme Variables */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #0f172a;
+      --text-primary: #f1f5f9;
+      --text-secondary: #e2e8f0;
+      --text-muted: #64748b;
+      --text-subtle: #475569;
+      --border: #334155;
+      --border-hover: #475569;
+      --json-key: #7dd3fc;
+      --json-string: #86efac;
+      --json-number: #fcd34d;
+      --json-boolean: #c4b5fd;
+      --json-null: #f87171;
+    }
+    
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --json-key: #0369a1;
+      --json-string: #15803d;
+      --json-number: #b45309;
+      --json-boolean: #7c3aed;
+      --json-null: #dc2626;
+    }
+    
     body {
       font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, monospace;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--bg-primary);
+      color: var(--text-secondary);
       margin: 0;
       padding: 20px;
       font-size: 14px;
+      transition: background 0.2s, color 0.2s;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
     h1 {
-      color: #f8fafc;
+      color: var(--text-primary);
       font-size: 18px;
-      margin: 0 0 16px;
+      margin: 0;
+    }
+    
+    /* Theme Toggle */
+    .theme-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px;
+    }
+    .theme-btn {
+      padding: 5px 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    .theme-btn:hover {
+      color: var(--text-primary);
+    }
+    .theme-btn.active {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
     }
     
     /* Toolbar */
@@ -36,18 +108,19 @@
       width: 100%;
       padding: 8px 12px;
       border-radius: 6px;
-      border: 1px solid #334155;
-      background: #1e293b;
-      color: #f1f5f9;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       font-family: inherit;
       font-size: 13px;
+      transition: border-color 0.15s, background 0.2s;
     }
     .search-box input:focus {
       outline: none;
       border-color: #3b82f6;
     }
     .search-box input::placeholder {
-      color: #64748b;
+      color: var(--text-muted);
     }
     .filters {
       display: flex;
@@ -57,9 +130,9 @@
     .filter-btn {
       padding: 6px 10px;
       border-radius: 6px;
-      border: 1px solid #334155;
+      border: 1px solid var(--border);
       background: transparent;
-      color: #64748b;
+      color: var(--text-muted);
       font-family: inherit;
       font-size: 11px;
       font-weight: 600;
@@ -68,8 +141,8 @@
       text-transform: uppercase;
     }
     .filter-btn:hover {
-      border-color: #475569;
-      color: #94a3b8;
+      border-color: var(--border-hover);
+      color: var(--text-subtle);
     }
     .filter-btn.active {
       color: white;
@@ -113,7 +186,8 @@
       padding: 10px 12px;
       border-radius: 6px;
       margin-bottom: 4px;
-      background: #1e293b;
+      background: var(--bg-secondary);
+      transition: background 0.2s;
     }
     .log-header {
       display: flex;
@@ -121,7 +195,7 @@
       gap: 10px;
     }
     .time {
-      color: #64748b;
+      color: var(--text-muted);
       font-size: 12px;
       flex-shrink: 0;
     }
@@ -134,33 +208,34 @@
       flex-shrink: 0;
     }
     .message {
-      color: #f1f5f9;
+      color: var(--text-primary);
     }
     
     /* JSON Tree Styles */
     .log-data {
       margin-top: 8px;
       padding: 8px 10px;
-      background: #0f172a;
+      background: var(--bg-tertiary);
       border-radius: 4px;
       font-size: 13px;
       overflow-x: auto;
+      transition: background 0.2s;
     }
     .json-collapsible {
       display: inline;
     }
     .json-toggle {
       cursor: pointer;
-      color: #64748b;
+      color: var(--text-muted);
       user-select: none;
       margin-right: 4px;
       font-size: 10px;
     }
     .json-toggle:hover {
-      color: #94a3b8;
+      color: var(--text-subtle);
     }
     .json-preview {
-      color: #64748b;
+      color: var(--text-muted);
       font-style: italic;
     }
     .json-content {
@@ -173,38 +248,38 @@
       line-height: 1.5;
     }
     .json-bracket {
-      color: #64748b;
+      color: var(--text-muted);
     }
     .json-key {
-      color: #7dd3fc;
+      color: var(--json-key);
     }
     .json-string {
-      color: #86efac;
+      color: var(--json-string);
     }
     .json-number {
-      color: #fcd34d;
+      color: var(--json-number);
     }
     .json-boolean {
-      color: #c4b5fd;
+      color: var(--json-boolean);
     }
     .json-null, .json-undefined {
-      color: #f87171;
+      color: var(--json-null);
     }
     
     /* Empty State */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
-      color: #64748b;
+      color: var(--text-muted);
     }
     .empty-state h2 {
-      color: #94a3b8;
+      color: var(--text-subtle);
       font-size: 16px;
       margin: 0 0 24px;
       font-weight: 500;
     }
     .empty-state pre {
-      background: #1e293b;
+      background: var(--bg-secondary);
       border-radius: 8px;
       padding: 16px 20px;
       text-align: left;
@@ -212,18 +287,19 @@
       margin: 0 0 20px;
       font-size: 13px;
       line-height: 1.6;
+      transition: background 0.2s;
     }
     .empty-state .keyword {
-      color: #c4b5fd;
+      color: var(--json-boolean);
     }
     .empty-state .function {
-      color: #7dd3fc;
+      color: var(--json-key);
     }
     .empty-state .string {
-      color: #86efac;
+      color: var(--json-string);
     }
     .empty-state .comment {
-      color: #64748b;
+      color: var(--text-muted);
     }
     .empty-state p {
       margin: 0 0 12px;
@@ -242,20 +318,36 @@
       margin-top: 40px;
       padding: 16px 0;
       text-align: center;
-      color: #475569;
+      color: var(--text-subtle);
       font-size: 12px;
     }
     .footer a {
-      color: #64748b;
+      color: var(--text-muted);
       text-decoration: none;
     }
     .footer a:hover {
-      color: #94a3b8;
+      color: var(--text-subtle);
     }
   </style>
+  <script>
+    // Apply theme before page renders to prevent flash
+    (function() {
+      const saved = localStorage.getItem('yoink-theme') || 'system';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved === 'system' ? (prefersDark ? 'dark' : 'light') : saved;
+      if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
 </head>
 <body>
-  <h1>yoink my logs</h1>
+  <div class="header">
+    <h1>yoink my logs</h1>
+    <div class="theme-toggle">
+      <button class="theme-btn" data-mode="light" title="Light">light️</button>
+      <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
+      <button class="theme-btn" data-mode="system" title="System">system️</button>
+    </div>
+  </div>
   
   <div class="toolbar">
     <div class="search-box">

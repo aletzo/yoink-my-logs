@@ -15,6 +15,41 @@ let allLogs = []
 let searchQuery = ""
 let activeTags = new Set(["info", "warn", "error", "debug", "success", "none"])
 
+// Theme toggle
+let currentMode = localStorage.getItem('yoink-theme') || 'system'
+
+function applyTheme(mode) {
+  currentMode = mode
+  localStorage.setItem('yoink-theme', mode)
+  
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const theme = mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode
+  
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light')
+  } else {
+    document.documentElement.removeAttribute('data-theme')
+  }
+  
+  // Update button states
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode)
+  })
+}
+
+// Initialize theme buttons
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyTheme(btn.dataset.mode))
+})
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (currentMode === 'system') applyTheme('system')
+})
+
+// Apply initial theme
+applyTheme(currentMode)
+
 // Initialize filter buttons
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {

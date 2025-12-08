@@ -1,6 +1,6 @@
 {
   "name": "yoink-my-logs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
@@ -20,7 +20,12 @@
     "public/",
     "bin/"
   ],
-  "keywords": ["logs", "debug", "sse", "log-viewer"],
+  "keywords": [
+    "logs",
+    "debug",
+    "sse",
+    "log-viewer"
+  ],
   "author": "Alexandros Tzotzolas",
   "description": "Local log viewer without dependencies. Use `yoink()` to write logs and `yoink` to start the browser UI.",
   "bin": {

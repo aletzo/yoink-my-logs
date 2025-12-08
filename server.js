@@ -235,7 +235,7 @@ export function startServer() {
     console.log(`  yoink-my-logs`)
     console.log()
     console.log(`  → Local:   http://localhost:${port}`)
-    console.log(`  → Logs:    ~/.yoink-my-logs/`)
+    console.log(`  → Logs:    ${dir}`)
     console.log()
   })
 }

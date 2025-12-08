@@ -270,11 +270,15 @@ function createLogElement(log) {
 }
 
 events.onmessage = (e) => {
-  const log = JSON.parse(e.data)
-  allLogs.push(log)
-  updateEmptyState()
-  
-  if (matchesFilter(log)) {
-    el.prepend(createLogElement(log))
+  try {
+    const log = JSON.parse(e.data)
+    allLogs.push(log)
+    updateEmptyState()
+    
+    if (matchesFilter(log)) {
+      el.prepend(createLogElement(log))
+    }
+  } catch (err) {
+    console.error("yoink: Failed to parse log data:", err.message)
   }
 }

@@ -4,7 +4,9 @@
   "type": "module",
   "main": "./index.js",
   "scripts": {
-    "test": "node --test test.js",
+    "test": "node --test --test-concurrency=1 test/**/*.test.js",
+    "test:server": "node --test --test-concurrency=1 test/server/*.test.js",
+    "test:client": "node --test --test-concurrency=1 test/client/*.test.js",
     "demo": "node bin/demo.js"
   },
   "files": [

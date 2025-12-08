@@ -24,10 +24,12 @@
       margin: 0;
     }
     #logs li {
-      padding: 8px 12px;
+      padding: 10px 12px;
       border-radius: 6px;
       margin-bottom: 4px;
       background: #1e293b;
+    }
+    .log-header {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -48,10 +50,64 @@
     .message {
       color: #f1f5f9;
     }
+    
+    /* JSON Tree Styles */
+    .log-data {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #0f172a;
+      border-radius: 4px;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    .json-collapsible {
+      display: inline;
+    }
+    .json-toggle {
+      cursor: pointer;
+      color: #64748b;
+      user-select: none;
+      margin-right: 4px;
+      font-size: 10px;
+    }
+    .json-toggle:hover {
+      color: #94a3b8;
+    }
+    .json-preview {
+      color: #64748b;
+      font-style: italic;
+    }
+    .json-content {
+      margin-left: 4px;
+    }
+    .json-items {
+      margin-left: 16px;
+    }
+    .json-item {
+      line-height: 1.5;
+    }
+    .json-bracket {
+      color: #64748b;
+    }
+    .json-key {
+      color: #7dd3fc;
+    }
+    .json-string {
+      color: #86efac;
+    }
+    .json-number {
+      color: #fcd34d;
+    }
+    .json-boolean {
+      color: #c4b5fd;
+    }
+    .json-null, .json-undefined {
+      color: #f87171;
+    }
   </style>
 </head>
 <body>
-  <h1>yoink my logssss</h1>
+  <h1>yoink my logs</h1>
   <ul id="logs"></ul>
   <script src="/client.js"></script>
 </body>

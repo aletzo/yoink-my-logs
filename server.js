@@ -206,6 +206,11 @@ export function startServer() {
       return
     }
 
+    if (parsed.pathname === "/styles.css") {
+      serveStatic("styles.css", "text/css", res)
+      return
+    }
+
     if (parsed.pathname === "/") {
       serveStatic("index.html", "text/html", res)
       return

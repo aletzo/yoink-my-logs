@@ -55,7 +55,12 @@ export function startServer() {
   })
 
   server.listen(port, () => {
-    console.log(`yoink-my-logs at http://localhost:${port}`)
+    console.log()
+    console.log(`  yoink-my-logs`)
+    console.log()
+    console.log(`  → Local:   http://localhost:${port}`)
+    console.log(`  → Logs:    ~/.yoink-my-logs/`)
+    console.log()
   })
 }
 

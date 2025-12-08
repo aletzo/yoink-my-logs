@@ -107,7 +107,8 @@ function updateEmptyState() {
 function renderLogs() {
   el.innerHTML = ""
   const filtered = allLogs.filter(matchesFilter)
-  filtered.forEach(log => {
+  // Show newest logs first
+  filtered.slice().reverse().forEach(log => {
     el.appendChild(createLogElement(log))
   })
   updateEmptyState()
@@ -263,7 +264,6 @@ events.onmessage = (e) => {
   updateEmptyState()
   
   if (matchesFilter(log)) {
-    el.appendChild(createLogElement(log))
-    window.scrollTo(0, document.body.scrollHeight)
+    el.prepend(createLogElement(log))
   }
 }

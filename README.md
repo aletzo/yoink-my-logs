@@ -7,13 +7,16 @@ A zero-dependency local log viewer for Node.js. Drop `yoink()` calls in your cod
 <details>
 <summary>More screenshots</summary>
 
-### Filter by Tag
+## Filter by Tag
+
 <img src="assets/yoink-screen-shot-filter-by-tag.jpg" width="700" alt="Filter by tag">
 
-### Search
+## Search
+
 <img src="assets/yoink-screen-shot-search.jpg" width="700" alt="Search">
 
-### Light Theme
+## Light Theme
+
 <img src="assets/yoink-screen-shot-light-theme.jpg" width="700" alt="Light theme">
 
 </details>

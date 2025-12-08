@@ -51,6 +51,19 @@
       transition: background 0.2s, color 0.2s;
     }
     
+    /* Sticky Top Bar */
+    .top-bar {
+      position: sticky;
+      top: -20px;
+      background: var(--bg-primary);
+      padding-top: 20px;
+      margin: -20px -20px 0 -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 16px;
+      z-index: 100;
+    }
+    
     /* Header */
     .header {
       display: flex;
@@ -95,7 +108,6 @@
     .toolbar {
       display: flex;
       gap: 12px;
-      margin-bottom: 16px;
       flex-wrap: wrap;
       align-items: center;
     }
@@ -411,29 +423,31 @@
   </script>
 </head>
 <body>
-  <div class="header">
-    <h1>yoink my logs</h1>
-    <div class="theme-toggle">
-      <button class="theme-btn" data-mode="light" title="Light">light️</button>
-      <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
-      <button class="theme-btn" data-mode="system" title="System">system️</button>
+  <div class="top-bar">
+    <div class="header">
+      <h1>yoink my logs</h1>
+      <div class="theme-toggle">
+        <button class="theme-btn" data-mode="light" title="Light">light️</button>
+        <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
+        <button class="theme-btn" data-mode="system" title="System">system️</button>
+      </div>
     </div>
-  </div>
-  
-  <div class="toolbar">
-    <div class="search-box">
-      <input type="text" id="search" placeholder="Search logs...">
+    
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search logs...">
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" data-tag="all">All</button>
+        <button class="filter-btn active" data-tag="info">Info</button>
+        <button class="filter-btn active" data-tag="success">Success</button>
+        <button class="filter-btn active" data-tag="warn">Warn</button>
+        <button class="filter-btn active" data-tag="error">Error</button>
+        <button class="filter-btn active" data-tag="debug">Debug</button>
+        <button class="filter-btn active" data-tag="none">No Tag</button>
+      </div>
+      <button class="clear-btn" id="clear-logs">Clear all</button>
     </div>
-    <div class="filters">
-      <button class="filter-btn active" data-tag="all">All</button>
-      <button class="filter-btn active" data-tag="info">Info</button>
-      <button class="filter-btn active" data-tag="success">Success</button>
-      <button class="filter-btn active" data-tag="warn">Warn</button>
-      <button class="filter-btn active" data-tag="error">Error</button>
-      <button class="filter-btn active" data-tag="debug">Debug</button>
-      <button class="filter-btn active" data-tag="none">No Tag</button>
-    </div>
-    <button class="clear-btn" id="clear-logs">Clear all</button>
   </div>
   
   <div id="empty-state" class="empty-state">

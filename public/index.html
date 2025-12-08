@@ -191,6 +191,52 @@
       color: #f87171;
     }
     
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+    }
+    .empty-state h2 {
+      color: #94a3b8;
+      font-size: 16px;
+      margin: 0 0 24px;
+      font-weight: 500;
+    }
+    .empty-state pre {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      text-align: left;
+      display: inline-block;
+      margin: 0 0 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .empty-state .keyword {
+      color: #c4b5fd;
+    }
+    .empty-state .function {
+      color: #7dd3fc;
+    }
+    .empty-state .string {
+      color: #86efac;
+    }
+    .empty-state .comment {
+      color: #64748b;
+    }
+    .empty-state p {
+      margin: 0 0 12px;
+      font-size: 13px;
+    }
+    .empty-state a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .empty-state a:hover {
+      text-decoration: underline;
+    }
+    
     /* Footer */
     .footer {
       margin-top: 40px;
@@ -224,6 +270,23 @@
       <button class="filter-btn active" data-tag="debug">Debug</button>
       <button class="filter-btn active" data-tag="none">No Tag</button>
     </div>
+  </div>
+  
+  <div id="empty-state" class="empty-state">
+    <h2>No logs yet</h2>
+    <pre><span class="keyword">import</span> yoink <span class="keyword">from</span> <span class="string">"yoink-my-logs"</span>
+
+<span class="comment">// Basic logging</span>
+<span class="function">yoink</span>(<span class="string">"Hello world"</span>, { userId: <span class="number">123</span> })
+
+<span class="comment">// With tags</span>
+yoink.<span class="function">info</span>(<span class="string">"Server started"</span>)
+yoink.<span class="function">success</span>(<span class="string">"Task completed"</span>)
+yoink.<span class="function">warn</span>(<span class="string">"Low memory"</span>)
+yoink.<span class="function">error</span>(<span class="string">"Connection failed"</span>)
+yoink.<span class="function">debug</span>(<span class="string">"Request payload"</span>, data)</pre>
+    <p>Add <code>yoink()</code> calls to your code and logs will appear here in real-time.</p>
+    <p><a href="https://github.com/aletzo/yoink-my-logs" target="_blank">View documentation on GitHub →</a></p>
   </div>
   
   <ul id="logs"></ul>

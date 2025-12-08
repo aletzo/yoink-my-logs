@@ -1,4 +1,5 @@
 const el = document.getElementById("logs")
+const emptyState = document.getElementById("empty-state")
 const searchInput = document.getElementById("search")
 const events = new EventSource("/events")
 
@@ -64,11 +65,17 @@ function matchesFilter(log) {
   return true
 }
 
+function updateEmptyState() {
+  emptyState.style.display = allLogs.length === 0 ? "block" : "none"
+}
+
 function renderLogs() {
   el.innerHTML = ""
-  allLogs.filter(matchesFilter).forEach(log => {
+  const filtered = allLogs.filter(matchesFilter)
+  filtered.forEach(log => {
     el.appendChild(createLogElement(log))
   })
+  updateEmptyState()
 }
 
 function createJsonTree(data, collapsed = true) {
@@ -218,6 +225,7 @@ function createLogElement(log) {
 events.onmessage = (e) => {
   const log = JSON.parse(e.data)
   allLogs.push(log)
+  updateEmptyState()
   
   if (matchesFilter(log)) {
     el.appendChild(createLogElement(log))

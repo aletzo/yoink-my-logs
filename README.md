@@ -2,6 +2,22 @@
 
 A zero-dependency local log viewer for Node.js. Drop `yoink()` calls in your code and watch them appear in real-time in your browser.
 
+<img src="assets/yoink-screen-shot-main.jpg" width="700" alt="Main UI">
+
+<details>
+<summary>More screenshots</summary>
+
+### Filter by Tag
+<img src="assets/yoink-screen-shot-filter-by-tag.jpg" width="700" alt="Filter by tag">
+
+### Search
+<img src="assets/yoink-screen-shot-search.jpg" width="700" alt="Search">
+
+### Light Theme
+<img src="assets/yoink-screen-shot-light-theme.jpg" width="700" alt="Light theme">
+
+</details>
+
 ## Installation
 
 ```bash

@@ -140,8 +140,8 @@ function updateEmptyState() {
 function renderLogs() {
   el.innerHTML = ""
   const filtered = allLogs.filter(matchesFilter)
-  // Show newest logs first
-  filtered.slice().reverse().forEach(log => {
+  // Show logs in chronological order (oldest first, newest at bottom)
+  filtered.forEach(log => {
     el.appendChild(createLogElement(log))
   })
   updateEmptyState()
@@ -344,7 +344,7 @@ events.onmessage = (e) => {
     updateEmptyState()
     
     if (matchesFilter(log)) {
-      el.prepend(createLogElement(log))
+      el.appendChild(createLogElement(log))
     }
   } catch (err) {
     console.error("yoink: Failed to parse log data:", err.message)

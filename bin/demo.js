@@ -4,44 +4,56 @@ import yoink from "../index.js"
 
 console.log("Adding demo logs...\n")
 
-// Basic logs
-yoink("User signed in", { userId: 123 })
-yoink("Payment processed", { amount: 49.99, currency: "USD" })
+// Data-only logs (single argument)
+yoink({ userId: 123, action: "login", timestamp: Date.now() })
+yoink({ cart: ["item1", "item2"], total: 99.99 })
+
+// Data with message (data first, message second)
+yoink({ userId: 123 }, "User signed in")
+yoink({ amount: 49.99, currency: "USD" }, "Payment processed")
+
+// Message-only (backward compatible)
 yoink("Something happened")
 
-// Tagged logs
-yoink.info("Server started", { port: 3000, env: "development" })
-yoink.info("Database connected", { host: "localhost", db: "myapp" })
+// Tagged logs with data
+yoink.info({ port: 3000, env: "development" }, "Server started")
+yoink.info({ host: "localhost", db: "myapp" }, "Database connected")
 
-yoink.success("Deployment complete", { version: "1.2.3" })
-yoink.success("All tests passed", { total: 42, duration: "3.2s" })
+yoink.success({ version: "1.2.3" }, "Deployment complete")
+yoink.success({ total: 42, duration: "3.2s" }, "All tests passed")
 
-yoink.warn("Rate limit approaching", { current: 95, max: 100 })
-yoink.warn("Deprecated API used", { endpoint: "/v1/users", suggestion: "/v2/users" })
+yoink.warn({ current: 95, max: 100 }, "Rate limit approaching")
+yoink.warn({ endpoint: "/v1/users", suggestion: "/v2/users" }, "Deprecated API used")
 
-yoink.error("Connection failed", { code: "ETIMEDOUT", host: "api.example.com" })
-yoink.error("Validation error", { field: "email", message: "Invalid format" })
+yoink.error({ code: "ETIMEDOUT", host: "api.example.com" }, "Connection failed")
+yoink.error({ field: "email", message: "Invalid format" }, "Validation error")
 
-yoink.debug("Request payload", { method: "POST", path: "/api/data", body: { foo: "bar" } })
-yoink.debug("Cache miss", { key: "user:123", ttl: 3600 })
+yoink.debug({ method: "POST", path: "/api/data", body: { foo: "bar" } }, "Request payload")
+yoink.debug({ key: "user:123", ttl: 3600 }, "Cache miss")
+
+// Tagged logs data-only (no message)
+yoink.info({ event: "startup", pid: process.pid })
+yoink.debug({ memoryUsage: process.memoryUsage() })
 
 // Emoji support
-yoink("🚀 Deploy started", { status: "✅", env: "🔥 production" })
+yoink({ status: "✅", env: "🔥 production" }, "🚀 Deploy started")
 yoink.success("🎉 Feature launched!")
-yoink.error("💥 Something broke", { stack: "Error at line 42" })
+yoink.error({ stack: "Error at line 42" }, "💥 Something broke")
 
 // Nested data
-yoink.info("Complex payload", {
+yoink.info({
   user: { id: 1, name: "Alice" },
   items: [{ sku: "A1", qty: 2 }, { sku: "B2", qty: 1 }],
   metadata: { source: "web", campaign: "summer-sale" }
-})
+}, "Complex payload")
 
-// Numbers and special values
-yoink(42)
-yoink.debug("Null value test", { value: null })
-yoink.debug("Boolean test", { enabled: true, disabled: false })
+// Data-only with arrays and objects
+yoink([1, 2, 3, 4, 5])
+yoink({ config: { debug: true, verbose: false, maxRetries: 3 } })
+
+// Special values
+yoink.debug({ value: null }, "Null value test")
+yoink.debug({ enabled: true, disabled: false }, "Boolean test")
 
 const port = process.env.YOINK_PORT || 7337
 console.log(`✓ Added demo logs! Open http://localhost:${port} to view them.`)
-

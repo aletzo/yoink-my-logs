@@ -27,7 +27,7 @@ describe("yoink()", () => {
     const yoink = (await import(`../../index.js?t=${Date.now() + 1}`)).default
     const testData = { userId: 123, action: "click", nested: { foo: "bar" } }
     
-    yoink("with data", testData)
+    yoink(testData, "with data")
     
     await wait(100)
     
@@ -48,30 +48,54 @@ describe("yoink()", () => {
     assert.strictEqual(log.data, undefined)
   })
 
-  test("converts non-string messages to strings", async () => {
+  test("treats single non-string argument as data", async () => {
     const yoink = (await import(`../../index.js?t=${Date.now() + 3}`)).default
     
-    yoink(42)
-    await wait(50)
-    
-    yoink(null)
-    await wait(50)
-    
-    yoink(true)
+    yoink({ userId: 123, action: "test" })
     await wait(100)
     
-    const lines = getLogLines()
-    const messages = lines.map(l => JSON.parse(l).message)
+    const log = getLastLog()
+    assert.strictEqual(log.message, "", "message should be empty")
+    assert.deepStrictEqual(log.data, { userId: 123, action: "test" }, "should have data")
+  })
+  
+  test("treats single string argument as message", async () => {
+    const yoink = (await import(`../../index.js?t=${Date.now() + 31}`)).default
     
-    assert.ok(messages.includes("42"), "should convert number to string")
-    assert.ok(messages.includes("null"), "should convert null to string")
-    assert.ok(messages.includes("true"), "should convert boolean to string")
+    yoink("just a message")
+    await wait(100)
+    
+    const log = getLastLog()
+    assert.strictEqual(log.message, "just a message", "should be message")
+    assert.strictEqual(log.data, undefined, "data should be undefined")
+  })
+  
+  test("two arguments: first is data, second is message", async () => {
+    const yoink = (await import(`../../index.js?t=${Date.now() + 32}`)).default
+    
+    yoink({ foo: "bar" }, "my message")
+    await wait(100)
+    
+    const log = getLastLog()
+    assert.strictEqual(log.message, "my message")
+    assert.deepStrictEqual(log.data, { foo: "bar" })
+  })
+  
+  test("two arguments: converts non-string message to string", async () => {
+    const yoink = (await import(`../../index.js?t=${Date.now() + 33}`)).default
+    
+    yoink({ count: 1 }, 42)
+    await wait(100)
+    
+    const log = getLastLog()
+    assert.strictEqual(log.message, "42", "should convert number to string")
+    assert.deepStrictEqual(log.data, { count: 1 })
   })
 
   test("supports emojis in messages and data", async () => {
     const yoink = (await import(`../../index.js?t=${Date.now() + 4}`)).default
     
-    yoink("🚀 Deploy started", { status: "✅", env: "🔥 production" })
+    yoink({ status: "✅", env: "🔥 production" }, "🚀 Deploy started")
     
     await wait(100)
     

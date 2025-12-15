@@ -1,6 +1,6 @@
 # yoink-my-logs
 
-A zero-dependency local log viewer for Node.js. Drop `yoink()` calls in your code and watch them appear in real-time in your browser.
+A better `console.log` for debugging. Zero dependencies. Drop `yoink()` calls anywhere in your code — Node.js or browser — and watch them stream live to a clean web UI with filtering, search, and proper JSON formatting.
 
 <img src="assets/yoink-screen-shot-main.jpg" width="700" alt="Main UI">
 
@@ -34,15 +34,18 @@ npm install yoink-my-logs
 ```javascript
 import yoink from "yoink-my-logs"
 
-// Basic logging
-yoink("User signed in", { userId: 123 })
+// Log data directly
+yoink({ userId: 123, cart: items, total: 49.99 })
+
+// Data with a message (data first, message second)
+yoink({ userId: 123 }, "User signed in")
 
 // With tags for different log levels
-yoink.info("Server started", { port: 3000 })
-yoink.success("Payment processed", { amount: 49.99 })
-yoink.warn("Rate limit approaching", { current: 95 })
-yoink.error("Connection failed", { code: "ETIMEDOUT" })
-yoink.debug("Request payload", { body: data })
+yoink.info({ port: 3000 }, "Server started")
+yoink.success({ amount: 49.99 }, "Payment processed")
+yoink.warn({ current: 95 }, "Rate limit approaching")
+yoink.error({ code: "ETIMEDOUT" }, "Connection failed")
+yoink.debug({ requestBody: data })  // data-only works with tags too
 ```
 
 ### 2. Start the viewer
@@ -62,8 +65,9 @@ You can also call `yoink()` from your frontend code. Logs are sent to the yoink 
 ```javascript
 import yoink from "yoink-my-logs/browser"
 
-yoink("page loaded", { url: location.href })
-yoink.info("user action", { type: "click" })
+yoink({ url: location.href, user: currentUser })        // data only
+yoink({ url: location.href }, "page loaded")            // data + message
+yoink.info({ type: "click" }, "user action")
 ```
 
 ### Option B: Script Tag
@@ -131,12 +135,19 @@ Default port is `7337`.
 
 ## API
 
-### `yoink(message, data?)`
+### `yoink(data)` / `yoink(data, message)`
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `message` | `string` | Log message |
-| `data` | `any` | Optional data payload (will be JSON serialized) |
+Flexible argument handling:
+
+| Call | Data | Message |
+|------|------|---------|
+| `yoink({ user: 1 })` | `{ user: 1 }` | `""` |
+| `yoink({ id: 1 }, "clicked")` | `{ id: 1 }` | `"clicked"` |
+| `yoink("hello")` | `undefined` | `"hello"` |
+
+- **Single non-string argument** → treated as data
+- **Single string argument** → treated as message
+- **Two arguments** → first is data, second is message
 
 ### Tagged methods
 

@@ -119,7 +119,7 @@ describe("log rotation", () => {
     
     const largeData = { data: "x".repeat(150000) }
     
-    yoink("large payload test", largeData)
+    yoink(largeData, "large payload test")
     
     await wait(100)
     
@@ -134,7 +134,7 @@ describe("log rotation", () => {
     
     const normalData = { data: "x".repeat(1000) }
     
-    yoink("normal payload test", normalData)
+    yoink(normalData, "normal payload test")
     
     await wait(100)
     

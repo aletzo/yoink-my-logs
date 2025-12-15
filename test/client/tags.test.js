@@ -21,7 +21,7 @@ describe("yoink tags", () => {
   test("yoink.info() sets tag to info", async () => {
     const yoink = (await import(`../../index.js?t=${Date.now() + 11}`)).default
     
-    yoink.info("info message", { detail: "test" })
+    yoink.info({ detail: "test" }, "info message")
     
     await wait(100)
     
@@ -46,7 +46,7 @@ describe("yoink tags", () => {
   test("yoink.error() sets tag to error", async () => {
     const yoink = (await import(`../../index.js?t=${Date.now() + 13}`)).default
     
-    yoink.error("error message", { code: 500 })
+    yoink.error({ code: 500 }, "error message")
     
     await wait(100)
     

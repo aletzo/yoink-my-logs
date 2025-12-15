@@ -1,8 +1,24 @@
 import { pushLog } from "./server.js"
 
-function createLog(message, data, tag) {
+function parseArgs(first, second) {
+  // Two arguments: first is data, second is message
+  if (second !== undefined) {
+    return { message: String(second), data: first }
+  }
+  
+  // Single string argument: treat as message
+  if (typeof first === "string") {
+    return { message: first, data: undefined }
+  }
+  
+  // Single non-string argument: treat as data
+  return { message: "", data: first }
+}
+
+function createLog(first, second, tag) {
+  const { message, data } = parseArgs(first, second)
   const log = {
-    message: String(message),
+    message,
     data,
     tag,
     timestamp: new Date().toISOString()
@@ -10,13 +26,12 @@ function createLog(message, data, tag) {
   pushLog(log)
 }
 
-export default function yoink(message, data) {
-  createLog(message, data, undefined)
+export default function yoink(first, second) {
+  createLog(first, second, undefined)
 }
 
-yoink.info = (message, data) => createLog(message, data, "info")
-yoink.warn = (message, data) => createLog(message, data, "warn")
-yoink.error = (message, data) => createLog(message, data, "error")
-yoink.debug = (message, data) => createLog(message, data, "debug")
-yoink.success = (message, data) => createLog(message, data, "success")
-
+yoink.info = (first, second) => createLog(first, second, "info")
+yoink.warn = (first, second) => createLog(first, second, "warn")
+yoink.error = (first, second) => createLog(first, second, "error")
+yoink.debug = (first, second) => createLog(first, second, "debug")
+yoink.success = (first, second) => createLog(first, second, "success")

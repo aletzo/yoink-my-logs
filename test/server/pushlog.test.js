@@ -36,7 +36,7 @@ describe("pushLog()", () => {
     
     // Write 10 logs rapidly with sequential numbers
     for (let i = 0; i < 10; i++) {
-      yoink(`${testId}-${i}`, { index: i })
+      yoink({ index: i }, `${testId}-${i}`)
     }
     
     await wait(100)
@@ -61,12 +61,12 @@ describe("pushLog()", () => {
     const testId = `tags-order-${Date.now()}`
     
     // Write logs with different tags in a specific order
-    yoink.info(`${testId}-0`, { step: 0 })
-    yoink.warn(`${testId}-1`, { step: 1 })
-    yoink.error(`${testId}-2`, { step: 2 })
-    yoink.debug(`${testId}-3`, { step: 3 })
-    yoink.success(`${testId}-4`, { step: 4 })
-    yoink(`${testId}-5`, { step: 5 })
+    yoink.info({ step: 0 }, `${testId}-0`)
+    yoink.warn({ step: 1 }, `${testId}-1`)
+    yoink.error({ step: 2 }, `${testId}-2`)
+    yoink.debug({ step: 3 }, `${testId}-3`)
+    yoink.success({ step: 4 }, `${testId}-4`)
+    yoink({ step: 5 }, `${testId}-5`)
     
     await wait(100)
     
@@ -99,7 +99,7 @@ describe("pushLog()", () => {
     ]
     
     for (let i = 0; i < payloads.length; i++) {
-      yoink(`${testId}-${i}`, { index: i, payload: payloads[i] })
+      yoink({ index: i, payload: payloads[i] }, `${testId}-${i}`)
     }
     
     await wait(150)

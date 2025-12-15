@@ -8,7 +8,23 @@ function getBaseUrl() {
   return `http://${host}:${port}`
 }
 
-function send(message, data, tag) {
+function parseArgs(first, second) {
+  // Two arguments: first is data, second is message
+  if (second !== undefined) {
+    return { message: String(second), data: first }
+  }
+  
+  // Single string argument: treat as message
+  if (typeof first === "string") {
+    return { message: first, data: undefined }
+  }
+  
+  // Single non-string argument: treat as data
+  return { message: "", data: first }
+}
+
+function send(first, second, tag) {
+  const { message, data } = parseArgs(first, second)
   fetch(`${getBaseUrl()}/yoink`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -16,15 +32,15 @@ function send(message, data, tag) {
   }).catch(() => {})
 }
 
-function yoink(message, data) {
-  send(message, data, undefined)
+function yoink(first, second) {
+  send(first, second, undefined)
 }
 
-yoink.info = (message, data) => send(message, data, "info")
-yoink.warn = (message, data) => send(message, data, "warn")
-yoink.error = (message, data) => send(message, data, "error")
-yoink.debug = (message, data) => send(message, data, "debug")
-yoink.success = (message, data) => send(message, data, "success")
+yoink.info = (first, second) => send(first, second, "info")
+yoink.warn = (first, second) => send(first, second, "warn")
+yoink.error = (first, second) => send(first, second, "error")
+yoink.debug = (first, second) => send(first, second, "debug")
+yoink.success = (first, second) => send(first, second, "success")
 
 yoink.init = (options = {}) => {
   if (options.host) host = options.host

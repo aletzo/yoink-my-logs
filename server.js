@@ -83,6 +83,12 @@ const securityHeaders = {
   "X-Frame-Options": "DENY"
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+}
+
 export function clearTodayLogs(res) {
   const files = getTodayFiles()
   
@@ -98,6 +104,34 @@ export function clearTodayLogs(res) {
     res.writeHead(500, { "Content-Type": "application/json", ...securityHeaders })
     res.end(JSON.stringify({ success: false, error: err.message }))
   }
+}
+
+export function handleYoinkPreflight(res) {
+  res.writeHead(204, { ...securityHeaders, ...corsHeaders })
+  res.end()
+}
+
+export function handleYoink(req, res) {
+  let body = ""
+  req.on("data", chunk => body += chunk)
+  req.on("end", () => {
+    try {
+      const { message, data, tag } = JSON.parse(body)
+      
+      if (message === undefined) {
+        res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
+        res.end(JSON.stringify({ success: false, error: "Missing message" }))
+        return
+      }
+      
+      pushLog({ message: String(message), data, tag, timestamp: new Date().toISOString() })
+      res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
+      res.end(JSON.stringify({ success: true }))
+    } catch (err) {
+      res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
+      res.end(JSON.stringify({ success: false, error: "Invalid JSON" }))
+    }
+  })
 }
 
 export function deleteLog(req, res) {
@@ -226,6 +260,21 @@ export function startServer() {
       return
     }
 
+    if (parsed.pathname === "/yoink" && req.method === "OPTIONS") {
+      handleYoinkPreflight(res)
+      return
+    }
+
+    if (parsed.pathname === "/yoink" && req.method === "POST") {
+      handleYoink(req, res)
+      return
+    }
+
+    if (parsed.pathname === "/yoink.js") {
+      serveYoinkClient(res)
+      return
+    }
+
     res.writeHead(404)
     res.end()
   })
@@ -351,4 +400,33 @@ function serveStatic(fileName, contentType, res) {
     res.writeHead(200, { "Content-Type": contentType, ...securityHeaders })
     res.end(content)
   })
+}
+
+function serveYoinkClient(res) {
+  const script = `(function() {
+  window.__YOINK_PORT__ = ${port};
+  var BASE = "http://localhost:${port}";
+  
+  function send(message, data, tag) {
+    fetch(BASE + "/yoink", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message, data: data, tag: tag })
+    }).catch(function() {});
+  }
+  
+  function yoink(message, data) {
+    send(message, data, undefined);
+  }
+  
+  yoink.info = function(m, d) { send(m, d, "info"); };
+  yoink.warn = function(m, d) { send(m, d, "warn"); };
+  yoink.error = function(m, d) { send(m, d, "error"); };
+  yoink.debug = function(m, d) { send(m, d, "debug"); };
+  yoink.success = function(m, d) { send(m, d, "success"); };
+  
+  window.yoink = yoink;
+})();`
+  res.writeHead(200, { "Content-Type": "application/javascript", ...securityHeaders, ...corsHeaders })
+  res.end(script)
 }

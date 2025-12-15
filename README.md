@@ -53,6 +53,52 @@ npx yoink
 
 Open [http://localhost:7337](http://localhost:7337) to see your logs stream in real-time.
 
+## Browser / Frontend Usage
+
+You can also call `yoink()` from your frontend code. Logs are sent to the yoink server via HTTP.
+
+### Option A: ES Module Import
+
+```javascript
+import yoink from "yoink-my-logs/browser"
+
+yoink("page loaded", { url: location.href })
+yoink.info("user action", { type: "click" })
+```
+
+### Option B: Script Tag
+
+Add the script tag to your HTML (served by the yoink server):
+
+```html
+<script src="http://localhost:7337/yoink.js"></script>
+<script>
+  yoink("button clicked", { id: "submit" })
+  yoink.error("something broke", { code: 500 })
+</script>
+```
+
+### Custom Port or Host
+
+If the yoink server is running on a non-default port or a different host:
+
+```javascript
+import yoink from "yoink-my-logs/browser"
+
+// Custom port
+yoink.init({ port: 8080 })
+
+// Custom host (e.g., for LAN access from mobile)
+yoink.init({ host: "192.168.1.50" })
+
+// Both
+yoink.init({ host: "192.168.1.50", port: 8080 })
+
+yoink("hello from mobile")
+```
+
+The `init()` call is optional — if you don't call it, it defaults to `localhost:7337`.
+
 ## How It Works
 
 - Logs are stored in `~/.yoink-my-logs/` as daily JSON files (`YYYY-MM-DD.log`)
@@ -103,6 +149,17 @@ All methods accept the same `(message, data?)` signature:
 | `yoink.warn()` | WARN | Amber |
 | `yoink.error()` | ERROR | Red |
 | `yoink.debug()` | DEBUG | Purple |
+
+### Browser module
+
+The browser module (`yoink-my-logs/browser`) has the same API as above, plus:
+
+#### `yoink.init(options?)`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `host` | `string` | `localhost` | Hostname or IP address of the yoink server |
+| `port` | `number` | `7337` | Port number of the yoink server |
 
 ## Demo
 

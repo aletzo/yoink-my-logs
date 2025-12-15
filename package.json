@@ -10,6 +10,10 @@
       "import": "./index.js",
       "require": "./index.cjs",
       "types": "./index.d.ts"
+    },
+    "./browser": {
+      "import": "./browser.js",
+      "types": "./browser.d.ts"
     }
   },
   "engines": {
@@ -25,6 +29,8 @@
     "index.js",
     "index.cjs",
     "index.d.ts",
+    "browser.js",
+    "browser.d.ts",
     "server.js",
     "public/",
     "bin/"

@@ -108,6 +108,8 @@ The `init()` call is optional — if you don't call it, it defaults to `localhos
 - Logs are stored in `~/.yoink-my-logs/` as daily JSON files (`YYYY-MM-DD.log`)
 - The browser UI connects via Server-Sent Events (SSE) for live updates
 - When you open the viewer, it shows today's log history and streams new entries as they arrive
+- File rotation: When a log file exceeds 100MB, a new file is created (`YYYY-MM-DD_2.log`, `YYYY-MM-DD_3.log`, etc.)
+- Entry limit: Individual log entries larger than 100KB are rejected to prevent runaway logging
 
 ## Configuration
 

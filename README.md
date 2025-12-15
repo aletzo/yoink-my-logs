@@ -1,6 +1,6 @@
 # yoink-my-logs
 
-A better `console.log` for debugging. Zero dependencies. Drop `yoink()` calls anywhere in your code — Node.js or browser — and watch them stream live to a clean web UI with filtering, search, and proper JSON formatting.
+A better `console.log` for debugging. Zero dependencies. Drop `yoink()` calls anywhere in your code, Node.js or browser, and watch them stream live to a clean web UI with filtering, search, and proper JSON formatting.
 
 <img src="assets/yoink-screen-shot-main.jpg" width="700" alt="Main UI">
 
@@ -77,8 +77,8 @@ Add the script tag to your HTML (served by the yoink server):
 ```html
 <script src="http://localhost:7337/yoink.js"></script>
 <script>
-  yoink("button clicked", { id: "submit" })
-  yoink.error("something broke", { code: 500 })
+  yoink({ id: "submit" }, "button clicked")
+  yoink.error({ code: 500 }, "something broke")
 </script>
 ```
 
@@ -151,7 +151,7 @@ Flexible argument handling:
 
 ### Tagged methods
 
-All methods accept the same `(message, data?)` signature:
+All tagged methods accept the same flexible arguments as `yoink()`:
 
 | Method | Tag | Color |
 |--------|-----|-------|

@@ -163,6 +163,46 @@ All tagged methods accept the same flexible arguments as `yoink()`:
 | `yoink.error()` | ERROR | Red |
 | `yoink.debug()` | DEBUG | Purple |
 
+### Array slicing methods
+
+When debugging large arrays, you often only need to see a subset of the data. These methods let you log only the first or last items:
+
+| Method | Description |
+|--------|-------------|
+| `yoink.first(data, message?)` | Logs only the **first item** of an array |
+| `yoink.last(data, message?)` | Logs only the **last item** of an array |
+| `yoink.five(data, message?)` | Logs the **first 5 items** of an array |
+| `yoink.last.five(data, message?)` | Logs the **last 5 items** of an array |
+| `yoink.ten(data, message?)` | Logs the **first 10 items** of an array |
+| `yoink.last.ten(data, message?)` | Logs the **last 10 items** of an array |
+
+```javascript
+const users = await fetchUsers() // Returns 500 users
+
+// Log just the first user
+yoink.first(users, "First user")
+
+// Log just the last user  
+yoink.last(users, "Most recent user")
+
+// Log first 5 users
+yoink.five(users, "Top 5 users")
+
+// Log last 5 users
+yoink.last.five(users, "Recent signups")
+
+// Log first 10 users
+yoink.ten(users, "First page of users")
+
+// Log last 10 users
+yoink.last.ten(users, "Latest 10 users")
+```
+
+**Behavior notes:**
+- If the data is not an array, it's logged as-is (no slicing applied)
+- Empty arrays return `[]` for `.five()`, `.ten()`, `.last.five()`, `.last.ten()` and `undefined` for `.first()`, `.last()`
+- If the array has fewer items than requested, all items are logged
+
 ### Browser module
 
 The browser module (`yoink-my-logs/browser`) has the same API as above, plus:

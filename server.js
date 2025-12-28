@@ -552,6 +552,40 @@ function serveYoinkClient(res) {
     }).catch(function() {});
   }
   
+  // Helper to slice arrays - returns original data if not an array
+  function sliceArray(data, start, count) {
+    if (!Array.isArray(data)) return data;
+    if (data.length === 0) return [];
+    return data.slice(start, start + count);
+  }
+  
+  function sliceFromEnd(data, count) {
+    if (!Array.isArray(data)) return data;
+    if (data.length === 0) return [];
+    return data.slice(-count);
+  }
+  
+  function sendSliced(first, second, slicer) {
+    var args = parseArgs(first, second);
+    var slicedData = slicer(args.data);
+    var caller = getCallerInfo();
+    
+    var payload = { message: args.message, data: slicedData, tag: undefined };
+    if (caller) {
+      payload.location = {
+        file: caller.file,
+        line: caller.line,
+        fullPath: caller.fullPath
+      };
+    }
+    
+    fetch(BASE + "/yoink", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).catch(function() {});
+  }
+  
   function yoink(first, second) {
     send(first, second, undefined);
   }
@@ -561,6 +595,36 @@ function serveYoinkClient(res) {
   yoink.error = function(first, second) { send(first, second, "error"); };
   yoink.debug = function(first, second) { send(first, second, "debug"); };
   yoink.success = function(first, second) { send(first, second, "success"); };
+  
+  // Array slicing methods
+  yoink.first = function(first, second) {
+    sendSliced(first, second, function(data) {
+      if (!Array.isArray(data)) return data;
+      if (data.length === 0) return undefined;
+      return data[0];
+    });
+  };
+  yoink.five = function(first, second) {
+    sendSliced(first, second, function(data) { return sliceArray(data, 0, 5); });
+  };
+  yoink.ten = function(first, second) {
+    sendSliced(first, second, function(data) { return sliceArray(data, 0, 10); });
+  };
+  
+  // yoink.last is both a function and has .five() and .ten() methods
+  yoink.last = function(first, second) {
+    sendSliced(first, second, function(data) {
+      if (!Array.isArray(data)) return data;
+      if (data.length === 0) return undefined;
+      return data[data.length - 1];
+    });
+  };
+  yoink.last.five = function(first, second) {
+    sendSliced(first, second, function(data) { return sliceFromEnd(data, 5); });
+  };
+  yoink.last.ten = function(first, second) {
+    sendSliced(first, second, function(data) { return sliceFromEnd(data, 10); });
+  };
   
   window.yoink = yoink;
 })();`

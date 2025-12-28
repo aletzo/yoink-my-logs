@@ -85,6 +85,17 @@
             <button class="btn-default" onclick="logComplexData()">Complex Data</button>
         </div>
 
+        <h3>Array Slicing Methods</h3>
+        <p>Log only the first/last items from large arrays:</p>
+        <div class="button-group">
+            <button class="btn-info" onclick="logFirst()">first()</button>
+            <button class="btn-info" onclick="logLast()">last()</button>
+            <button class="btn-success" onclick="logFive()">five()</button>
+            <button class="btn-success" onclick="logLastFive()">last.five()</button>
+            <button class="btn-debug" onclick="logTen()">ten()</button>
+            <button class="btn-debug" onclick="logLastTen()">last.ten()</button>
+        </div>
+
         <div id="status" class="status">Ready. Click buttons above to generate logs.</div>
     </div>
 
@@ -205,6 +216,44 @@
                 }
             }, 'Complex data structure');
             updateStatus('✓ Logged complex data', 'success');
+        }
+
+        // Sample array for slicing demos
+        const sampleUsers = Array.from({ length: 25 }, (_, i) => ({
+            id: i + 1,
+            name: `User ${i + 1}`,
+            email: `user${i + 1}@example.com`,
+            score: Math.floor(Math.random() * 100)
+        }));
+
+        function logFirst() {
+            yoink.first(sampleUsers, 'First user from list');
+            updateStatus('✓ Logged first item', 'success');
+        }
+
+        function logLast() {
+            yoink.last(sampleUsers, 'Last user from list');
+            updateStatus('✓ Logged last item', 'success');
+        }
+
+        function logFive() {
+            yoink.five(sampleUsers, 'First 5 users (preview)');
+            updateStatus('✓ Logged first 5 items', 'success');
+        }
+
+        function logLastFive() {
+            yoink.last.five(sampleUsers, 'Last 5 users (recent signups)');
+            updateStatus('✓ Logged last 5 items', 'success');
+        }
+
+        function logTen() {
+            yoink.ten(sampleUsers, 'First 10 users');
+            updateStatus('✓ Logged first 10 items', 'success');
+        }
+
+        function logLastTen() {
+            yoink.last.ten(sampleUsers, 'Last 10 users (most active)');
+            updateStatus('✓ Logged last 10 items', 'success');
         }
 
         // Log page load

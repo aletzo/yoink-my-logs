@@ -121,6 +121,40 @@ function send(first, second, tag) {
   }).catch(() => {})
 }
 
+// Helper to slice arrays - returns original data if not an array
+function sliceArray(data, start, count) {
+  if (!Array.isArray(data)) return data
+  if (data.length === 0) return []
+  return data.slice(start, start + count)
+}
+
+function sliceFromEnd(data, count) {
+  if (!Array.isArray(data)) return data
+  if (data.length === 0) return []
+  return data.slice(-count)
+}
+
+function sendSliced(first, second, slicer) {
+  const { message, data } = parseArgs(first, second)
+  const slicedData = slicer(data)
+  const caller = getCallerInfo()
+  
+  const payload = { message, data: slicedData, tag: undefined }
+  if (caller) {
+    payload.location = {
+      file: caller.file,
+      line: caller.line,
+      fullPath: caller.fullPath
+    }
+  }
+  
+  fetch(`${getBaseUrl()}/yoink`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(() => {})
+}
+
 function yoink(first, second) {
   send(first, second, undefined)
 }
@@ -130,6 +164,24 @@ yoink.warn = (first, second) => send(first, second, "warn")
 yoink.error = (first, second) => send(first, second, "error")
 yoink.debug = (first, second) => send(first, second, "debug")
 yoink.success = (first, second) => send(first, second, "success")
+
+// Array slicing methods
+yoink.first = (first, second) => sendSliced(first, second, data => {
+  if (!Array.isArray(data)) return data
+  if (data.length === 0) return undefined
+  return data[0]
+})
+yoink.five = (first, second) => sendSliced(first, second, data => sliceArray(data, 0, 5))
+yoink.ten = (first, second) => sendSliced(first, second, data => sliceArray(data, 0, 10))
+
+// yoink.last is both a function and has .five() and .ten() methods
+yoink.last = (first, second) => sendSliced(first, second, data => {
+  if (!Array.isArray(data)) return data
+  if (data.length === 0) return undefined
+  return data[data.length - 1]
+})
+yoink.last.five = (first, second) => sendSliced(first, second, data => sliceFromEnd(data, 5))
+yoink.last.ten = (first, second) => sendSliced(first, second, data => sliceFromEnd(data, 10))
 
 yoink.init = (options = {}) => {
   if (options.host) host = options.host

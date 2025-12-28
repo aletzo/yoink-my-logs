@@ -105,9 +105,42 @@ setTimeout(() => {
   }, "Performance metrics")
 }, 4500)
 
+// Array slicing methods - log only parts of large arrays
+setTimeout(() => {
+  // Create a sample array of users
+  const users = Array.from({ length: 50 }, (_, i) => ({
+    id: i + 1,
+    name: `User ${i + 1}`,
+    email: `user${i + 1}@example.com`
+  }))
+  
+  // Log only the first user
+  yoink.first(users, "First user from database query")
+  
+  // Log only the last user
+  yoink.last(users, "Last user from database query")
+  
+  // Log first 5 users
+  yoink.five(users, "First 5 users (preview)")
+  
+  // Log last 5 users
+  yoink.last.five(users, "Last 5 users (recent signups)")
+  
+  // Log first 10 users
+  yoink.ten(users, "First 10 users (top of list)")
+  
+  // Log last 10 users
+  yoink.last.ten(users, "Last 10 users (most recent)")
+}, 5000)
+
+// Non-array data with slicing methods (logs as-is)
+setTimeout(() => {
+  yoink.first({ single: "object" }, "Non-array data logged as-is")
+}, 5500)
+
 // Final message
 setTimeout(() => {
   console.log("\n✅ Demo complete! Check http://localhost:7337 to view the logs.\n")
   process.exit(0)
-}, 5000)
+}, 6000)
 

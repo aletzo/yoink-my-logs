@@ -71,6 +71,24 @@ function generateLog() {
       }
     }, `Batch summary #${Math.floor(counter / 5)}`)
   }
+
+  // Demonstrate array slicing methods every 7th log
+  if (counter % 7 === 0) {
+    const allEvents = Array.from({ length: 30 }, (_, i) => ({
+      id: i + 1,
+      event: `event_${i + 1}`,
+      timestamp: new Date(Date.now() - i * 1000).toISOString()
+    }))
+    
+    // Log first event
+    yoink.first(allEvents, 'First event (most recent)')
+    
+    // Log last 5 events
+    yoink.last.five(allEvents, 'Last 5 events (oldest)')
+    
+    // Log first 10 events
+    yoink.ten(allEvents, 'First 10 events (recent batch)')
+  }
 }
 
 // Generate a log every 2 seconds

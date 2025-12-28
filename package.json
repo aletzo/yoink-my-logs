@@ -23,7 +23,11 @@
     "test": "node --test --test-concurrency=1 test/**/*.test.js",
     "test:server": "node --test --test-concurrency=1 test/server/*.test.js",
     "test:client": "node --test --test-concurrency=1 test/client/*.test.js",
-    "demo": "node bin/demo.js"
+    "start": "node bin/ui.js",
+    "demo:node": "node demo/node-demo.js",
+    "demo:continuous": "node demo/continuous-demo.js",
+    "demo:logs": "node bin/demo.js",
+    "demo:browser": "node demo/serve-browser-demo.js"
   },
   "files": [
     "index.js",

@@ -176,6 +176,8 @@ The browser module (`yoink-my-logs/browser`) has the same API as above, plus:
 
 ## Demo
 
+### Quick Demo Script
+
 Generate sample logs to test the UI:
 
 ```bash
@@ -187,6 +189,22 @@ Or after installing the package:
 ```bash
 npx yoink-demo
 ```
+
+### Demo Project
+
+For more comprehensive testing, check out the `demo/` directory which includes:
+
+- **`node-demo.js`** - A Node.js application demonstrating various logging scenarios
+- **`browser-demo.html`** - A standalone HTML page for browser-based logging
+- **`continuous-demo.js`** - Continuously generates logs for testing live streaming
+
+To use the demo project:
+
+1. Start the yoink server: `npm run start` (or `npx yoink`)
+2. Run the Node.js demo: `node demo/node-demo.js`
+3. Open `demo/browser-demo.html` in your browser
+
+See `demo/README.md` for more details.
 
 ## Development
 

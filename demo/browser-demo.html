@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yoink-my-logs Browser Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .btn-info { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warn { background: #f59e0b; color: white; }
+        .btn-error { background: #ef4444; color: white; }
+        .btn-debug { background: #8b5cf6; color: white; }
+        .btn-default { background: #6b7280; color: white; }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f3f4f6;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 yoink-my-logs Browser Demo</h1>
+        <p>This page demonstrates logging from the browser. Make sure the yoink server is running on <code>http://localhost:7337</code></p>
+        
+        <div class="button-group">
+            <button class="btn-default" onclick="logBasic()">Basic Log</button>
+            <button class="btn-info" onclick="logInfo()">Info Log</button>
+            <button class="btn-success" onclick="logSuccess()">Success Log</button>
+            <button class="btn-warn" onclick="logWarn()">Warn Log</button>
+            <button class="btn-error" onclick="logError()">Error Log</button>
+            <button class="btn-debug" onclick="logDebug()">Debug Log</button>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-default" onclick="logUserAction()">User Action</button>
+            <button class="btn-default" onclick="logPageView()">Page View</button>
+            <button class="btn-default" onclick="logFormSubmit()">Form Submit</button>
+            <button class="btn-default" onclick="logAPIRequest()">API Request</button>
+            <button class="btn-default" onclick="logComplexData()">Complex Data</button>
+        </div>
+
+        <div id="status" class="status">Ready. Click buttons above to generate logs.</div>
+    </div>
+
+    <!-- Load yoink from the server -->
+    <script src="http://localhost:7337/yoink.js"></script>
+    <script>
+        function updateStatus(message, type = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            setTimeout(() => {
+                status.className = 'status';
+            }, 2000);
+        }
+
+        function logBasic() {
+            yoink({ action: 'button_click', button: 'basic' }, 'Basic log entry');
+            updateStatus('✓ Sent basic log', 'success');
+        }
+
+        function logInfo() {
+            yoink.info({ page: location.pathname, userAgent: navigator.userAgent }, 'Page info');
+            updateStatus('✓ Sent info log', 'success');
+        }
+
+        function logSuccess() {
+            yoink.success({ userId: 123, action: 'purchase', amount: 49.99 }, 'Purchase completed');
+            updateStatus('✓ Sent success log', 'success');
+        }
+
+        function logWarn() {
+            yoink.warn({ current: 85, limit: 100 }, 'Rate limit approaching');
+            updateStatus('✓ Sent warn log', 'success');
+        }
+
+        function logError() {
+            yoink.error({ code: 'NETWORK_ERROR', url: '/api/data' }, 'API request failed');
+            updateStatus('✓ Sent error log', 'success');
+        }
+
+        function logDebug() {
+            yoink.debug({ timestamp: Date.now(), performance: performance.now() }, 'Debug information');
+            updateStatus('✓ Sent debug log', 'success');
+        }
+
+        function logUserAction() {
+            yoink({
+                event: 'click',
+                element: 'button',
+                id: 'user-action-btn',
+                coordinates: { x: 100, y: 200 },
+                timestamp: new Date().toISOString()
+            }, 'User clicked button');
+            updateStatus('✓ Logged user action', 'success');
+        }
+
+        function logPageView() {
+            yoink.info({
+                path: location.pathname,
+                referrer: document.referrer,
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                timestamp: Date.now()
+            }, 'Page viewed');
+            updateStatus('✓ Logged page view', 'success');
+        }
+
+        function logFormSubmit() {
+            yoink({
+                form: 'contact-form',
+                fields: {
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    message: 'Hello world'
+                },
+                validation: { passed: true, errors: [] }
+            }, 'Form submitted');
+            updateStatus('✓ Logged form submit', 'success');
+        }
+
+        function logAPIRequest() {
+            yoink.debug({
+                method: 'POST',
+                url: '/api/users',
+                headers: {
+                    'content-type': 'application/json',
+                    'authorization': 'Bearer ***'
+                },
+                body: {
+                    name: 'Alice',
+                    email: 'alice@example.com'
+                },
+                duration: 123
+            }, 'API request sent');
+            updateStatus('✓ Logged API request', 'success');
+        }
+
+        function logComplexData() {
+            yoink.info({
+                user: {
+                    id: 456,
+                    name: 'Bob',
+                    preferences: {
+                        theme: 'dark',
+                        notifications: true
+                    }
+                },
+                cart: [
+                    { sku: 'PROD-001', quantity: 2, price: 29.99 },
+                    { sku: 'PROD-002', quantity: 1, price: 19.99 }
+                ],
+                metadata: {
+                    source: 'web',
+                    campaign: 'summer-sale',
+                    sessionId: 'sess_abc123'
+                }
+            }, 'Complex data structure');
+            updateStatus('✓ Logged complex data', 'success');
+        }
+
+        // Log page load
+        window.addEventListener('load', () => {
+            yoink.info({ url: location.href, loaded: true }, 'Demo page loaded');
+        });
+    </script>
+</body>
+</html>
+

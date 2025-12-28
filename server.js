@@ -407,23 +407,39 @@ function serveYoinkClient(res) {
   window.__YOINK_PORT__ = ${port};
   var BASE = "http://localhost:${port}";
   
-  function send(message, data, tag) {
+  function parseArgs(first, second) {
+    // Two arguments: first is data, second is message
+    if (second !== undefined) {
+      return { message: String(second), data: first };
+    }
+    
+    // Single string argument: treat as message
+    if (typeof first === "string") {
+      return { message: first, data: undefined };
+    }
+    
+    // Single non-string argument: treat as data
+    return { message: "", data: first };
+  }
+  
+  function send(first, second, tag) {
+    var args = parseArgs(first, second);
     fetch(BASE + "/yoink", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message, data: data, tag: tag })
+      body: JSON.stringify({ message: args.message, data: args.data, tag: tag })
     }).catch(function() {});
   }
   
-  function yoink(message, data) {
-    send(message, data, undefined);
+  function yoink(first, second) {
+    send(first, second, undefined);
   }
   
-  yoink.info = function(m, d) { send(m, d, "info"); };
-  yoink.warn = function(m, d) { send(m, d, "warn"); };
-  yoink.error = function(m, d) { send(m, d, "error"); };
-  yoink.debug = function(m, d) { send(m, d, "debug"); };
-  yoink.success = function(m, d) { send(m, d, "success"); };
+  yoink.info = function(first, second) { send(first, second, "info"); };
+  yoink.warn = function(first, second) { send(first, second, "warn"); };
+  yoink.error = function(first, second) { send(first, second, "error"); };
+  yoink.debug = function(first, second) { send(first, second, "debug"); };
+  yoink.success = function(first, second) { send(first, second, "success"); };
   
   window.yoink = yoink;
 })();`

@@ -111,6 +111,8 @@ export function handleYoinkPreflight(res) {
   res.end()
 }
 
+const ALLOWED_TAGS = new Set(["info", "success", "warn", "error", "debug", undefined])
+
 export function handleYoink(req, res) {
   let body = ""
   req.on("data", chunk => body += chunk)
@@ -121,6 +123,13 @@ export function handleYoink(req, res) {
       if (message === undefined) {
         res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
         res.end(JSON.stringify({ success: false, error: "Missing message" }))
+        return
+      }
+      
+      // Validate tag if provided
+      if (tag !== undefined && !ALLOWED_TAGS.has(tag)) {
+        res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
+        res.end(JSON.stringify({ success: false, error: "Invalid tag" }))
         return
       }
       
@@ -316,7 +325,15 @@ function sendHistory(res) {
       const lines = content.trim().split("\n")
       for (const line of lines) {
         if (!line) continue
-        res.write(`data: ${line}\n\n`)
+        // Validate that the line is valid JSON before sending
+        // This prevents SSE injection if the file is corrupted
+        try {
+          JSON.parse(line)
+          res.write(`data: ${line}\n\n`)
+        } catch {
+          // Skip invalid JSON lines (defensive: shouldn't happen with normal operation)
+          continue
+        }
       }
     } catch {
       // File doesn't exist or can't be read, skip it
@@ -359,7 +376,15 @@ function followFile(res) {
             const lines = chunk.toString().split("\n")
             for (const line of lines) {
               if (!line.trim()) continue
-              res.write(`data: ${line.trim()}\n\n`)
+              // Validate that the line is valid JSON before sending
+              // This prevents SSE injection if the file is corrupted
+              try {
+                JSON.parse(line.trim())
+                res.write(`data: ${line.trim()}\n\n`)
+              } catch {
+                // Skip invalid JSON lines (defensive: shouldn't happen with normal operation)
+                continue
+              }
             }
           })
           pos = stats.size

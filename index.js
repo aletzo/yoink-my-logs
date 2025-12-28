@@ -1,4 +1,5 @@
 import { pushLog } from "./server.js"
+import { getCallerInfo } from "./get-caller.js"
 
 function parseArgs(first, second) {
   // Two arguments: first is data, second is message
@@ -17,12 +18,21 @@ function parseArgs(first, second) {
 
 function createLog(first, second, tag) {
   const { message, data } = parseArgs(first, second)
+  const caller = getCallerInfo()
   const log = {
     message,
     data,
     tag,
     timestamp: new Date().toISOString()
   }
+  
+  if (caller) {
+    log.location = {
+      file: caller.file,
+      line: caller.line
+    }
+  }
+  
   pushLog(log)
 }
 

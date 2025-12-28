@@ -118,7 +118,7 @@ export function handleYoink(req, res) {
   req.on("data", chunk => body += chunk)
   req.on("end", () => {
     try {
-      const { message, data, tag } = JSON.parse(body)
+      const { message, data, tag, location } = JSON.parse(body)
       
       if (message === undefined) {
         res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
@@ -133,7 +133,17 @@ export function handleYoink(req, res) {
         return
       }
       
-      pushLog({ message: String(message), data, tag, timestamp: new Date().toISOString() })
+      const logEntry = { message: String(message), data, tag, timestamp: new Date().toISOString() }
+      
+      // Include location if provided (from browser client or Node.js)
+      if (location && typeof location === 'object' && location.file && location.line) {
+        logEntry.location = {
+          file: String(location.file),
+          line: parseInt(location.line, 10)
+        }
+      }
+      
+      pushLog(logEntry)
       res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
       res.end(JSON.stringify({ success: true }))
     } catch (err) {
@@ -432,6 +442,81 @@ function serveYoinkClient(res) {
   window.__YOINK_PORT__ = ${port};
   var BASE = "http://localhost:${port}";
   
+  function getCallerInfo() {
+    var stack = new Error().stack;
+    if (!stack) return null;
+    
+    var lines = stack.split("\\n");
+    
+    // Skip: Error, getCallerInfo, send, yoink/yoink.info/etc
+    for (var i = 1; i < lines.length; i++) {
+      var line = lines[i].trim();
+      
+      // Skip internal yoink functions
+      if (line.indexOf("browser.js") !== -1 || 
+          line.indexOf("node_modules") !== -1 ||
+          line.indexOf("get-caller") !== -1 ||
+          line.indexOf("yoink.js") !== -1) {
+        continue;
+      }
+      
+      // Parse browser stack trace format
+      var browserMatch = line.match(/@(.+):(\\d+):(\\d+)/);
+      var atMatch = line.match(/at\\s+(?:.*\\()?(.+):(\\d+):(\\d+)\\)?/);
+      
+      var file, lineNum;
+      
+      if (browserMatch) {
+        file = browserMatch[1];
+        lineNum = browserMatch[2];
+      } else if (atMatch) {
+        file = atMatch[1];
+        lineNum = atMatch[2];
+      }
+      
+      if (file && lineNum) {
+        var shortPath = file;
+        var fullPath = file;
+        
+        // Check if it's a URL
+        if (file.indexOf("http://") === 0 || file.indexOf("https://") === 0 || file.indexOf("file://") === 0) {
+          try {
+            var url = new URL(file);
+            var pathname = url.pathname;
+            
+            if (pathname === "/" || pathname === "") {
+              // Inline script in HTML page - use the page URL
+              shortPath = url.hostname + (url.port ? ":" + url.port : "") + " (inline)";
+            } else {
+              // Extract filename from path
+              var pathParts = pathname.split("/").filter(function(p) { return p; });
+              shortPath = pathParts.length > 0 
+                ? pathParts.slice(-2).join("/") || pathParts[pathParts.length - 1]
+                : pathname;
+            }
+          } catch (e) {
+            // URL parsing failed, use the original
+            shortPath = file;
+          }
+        } else {
+          // Not a URL - use original path splitting logic
+          var pathParts = file.split(/[/\\\\]/);
+          shortPath = pathParts.length > 1 
+            ? pathParts.slice(-2).join("/")
+            : file;
+        }
+        
+        return {
+          file: shortPath,
+          line: parseInt(lineNum, 10),
+          fullPath: fullPath
+        };
+      }
+    }
+    
+    return null;
+  }
+  
   function parseArgs(first, second) {
     // Two arguments: first is data, second is message
     if (second !== undefined) {
@@ -449,10 +534,21 @@ function serveYoinkClient(res) {
   
   function send(first, second, tag) {
     var args = parseArgs(first, second);
+    var caller = getCallerInfo();
+    
+    var payload = { message: args.message, data: args.data, tag: tag };
+    if (caller) {
+      payload.location = {
+        file: caller.file,
+        line: caller.line,
+        fullPath: caller.fullPath
+      };
+    }
+    
     fetch(BASE + "/yoink", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: args.message, data: args.data, tag: tag })
+      body: JSON.stringify(payload)
     }).catch(function() {});
   }
   

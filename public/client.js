@@ -265,7 +265,7 @@ function createLogElement(log) {
   time.className = "time"
   time.textContent = `[${log.timestamp}]`
   header.appendChild(time)
-  
+
   if (log.tag) {
     const tag = document.createElement("span")
     tag.className = "tag"
@@ -273,7 +273,15 @@ function createLogElement(log) {
     tag.style.backgroundColor = tagColors[log.tag] || "#6b7280"
     header.appendChild(tag)
   }
-  
+
+  if (log.location) {
+    const locationSpan = document.createElement("span")
+    locationSpan.className = "location"
+    locationSpan.textContent = `${log.location.file}:${log.location.line}`
+    locationSpan.title = log.location.fullPath ? `${log.location.fullPath}:${log.location.line}` : `${log.location.file}:${log.location.line}`
+    header.appendChild(locationSpan)
+  }
+
   const msg = document.createElement("span")
   msg.className = "message"
   msg.textContent = log.message

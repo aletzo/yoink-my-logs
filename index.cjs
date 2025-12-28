@@ -54,6 +54,38 @@ yoink.success = (message, data) => {
   loadModule().then(mod => mod.success(message, data));
 };
 
+// Array slicing methods
+yoink.first = (data, message) => {
+  if (yoinkModule) return yoinkModule.first(data, message);
+  loadModule().then(mod => mod.first(data, message));
+};
+
+yoink.five = (data, message) => {
+  if (yoinkModule) return yoinkModule.five(data, message);
+  loadModule().then(mod => mod.five(data, message));
+};
+
+yoink.ten = (data, message) => {
+  if (yoinkModule) return yoinkModule.ten(data, message);
+  loadModule().then(mod => mod.ten(data, message));
+};
+
+// yoink.last is a function with .five() and .ten() methods
+yoink.last = (data, message) => {
+  if (yoinkModule) return yoinkModule.last(data, message);
+  loadModule().then(mod => mod.last(data, message));
+};
+
+yoink.last.five = (data, message) => {
+  if (yoinkModule) return yoinkModule.last.five(data, message);
+  loadModule().then(mod => mod.last.five(data, message));
+};
+
+yoink.last.ten = (data, message) => {
+  if (yoinkModule) return yoinkModule.last.ten(data, message);
+  loadModule().then(mod => mod.last.ten(data, message));
+};
+
 // Export a ready promise for users who want to ensure module is loaded
 yoink.ready = loadModule;
 

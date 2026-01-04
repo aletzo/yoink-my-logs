@@ -14,6 +14,10 @@
     "./browser": {
       "import": "./browser.js",
       "types": "./browser.d.ts"
+    },
+    "./get-caller": {
+      "import": "./get-caller.js",
+      "types": "./get-caller.d.ts"
     }
   },
   "engines": {
@@ -36,6 +40,8 @@
     "index.d.ts",
     "browser.js",
     "browser.d.ts",
+    "get-caller.js",
+    "get-caller.d.ts",
     "server.js",
     "public/",
     "bin/"

@@ -1,0 +1,88 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get tag name
+        id: tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Tag name: $TAG_NAME"
+
+      - name: Get previous tag
+        id: previous_tag
+        run: |
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag: $PREVIOUS_TAG"
+
+      - name: Get release date
+        id: date
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+      - name: Get conventional commits
+        id: commits
+        run: |
+          PREVIOUS_TAG="${{ steps.previous_tag.outputs.previous_tag }}"
+          CURRENT_TAG="${{ steps.tag.outputs.tag_name }}"
+          
+          # Get all commits between previous tag and current tag
+          ALL_COMMITS=$(git log --pretty=format:"%s" $PREVIOUS_TAG..$CURRENT_TAG)
+          
+          # Filter commits that follow conventional commits and would cause version bumps
+          # feat: (minor), fix: (patch), perf: (patch), refactor: (patch)
+          # Also include commits with ! or BREAKING CHANGE (major)
+          FILTERED_COMMITS=$(echo "$ALL_COMMITS" | grep -E "^(feat|fix|perf|refactor)(\(.+\))?(!)?:" || true)
+          
+          # Check for BREAKING CHANGE in commit messages (including body)
+          BREAKING_COMMITS=$(git log --pretty=format:"%s" $PREVIOUS_TAG..$CURRENT_TAG | grep -E "BREAKING CHANGE|!:" || true)
+          
+          # Combine and deduplicate
+          if [ -n "$FILTERED_COMMITS" ] || [ -n "$BREAKING_COMMITS" ]; then
+            RELEVANT_COMMITS=$(echo -e "$FILTERED_COMMITS\n$BREAKING_COMMITS" | grep -v "^$" | sort -u)
+          else
+            # If no conventional commits found, include all commits
+            RELEVANT_COMMITS="$ALL_COMMITS"
+          fi
+          
+          # Format commits as markdown list and escape for GitHub output
+          {
+            echo 'commits<<EOF'
+            echo "$RELEVANT_COMMITS" | sed 's/^/- /'
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: ${{ steps.tag.outputs.tag_name }}
+          body: |
+            **Release Date:** ${{ steps.date.outputs.date }}
+            
+            ## Changes
+            
+            ${{ steps.commits.outputs.commits }}
+          draft: false
+          prerelease: false
+

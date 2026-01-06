@@ -326,6 +326,15 @@ function startStream(res) {
     ...securityHeaders
   })
 
+  // Disable Nagle's algorithm to ensure small writes are sent immediately
+  // This is critical for SSE to work properly with real-time updates
+  if (res.socket) {
+    res.socket.setNoDelay(true)
+  }
+
+  // Flush headers immediately to establish the SSE connection
+  res.flushHeaders()
+
   sendHistory(res)
   followFile(res)
 

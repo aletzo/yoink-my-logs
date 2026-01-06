@@ -119,6 +119,7 @@ The `init()` call is optional — if you don't call it, it defaults to `localhos
 |----------|---------|-------------|
 | `YOINK_PORT` | `7337` | Port for the web UI |
 | `YOINK_LOG_DIR` | `~/.yoink-my-logs` | Directory where log files are stored |
+| `YOINK_REPLACE_CONSOLE_LOG` | - | When set, replaces `console.log`, `console.info`, `console.warn`, `console.error`, and `console.debug` with yoink equivalents |
 
 ### Examples
 
@@ -131,9 +132,39 @@ YOINK_LOG_DIR=/tmp/my-logs npx yoink
 
 # Both
 YOINK_PORT=8080 YOINK_LOG_DIR=/var/log/yoink npx yoink
+
+# Replace console.log with yoink
+YOINK_REPLACE_CONSOLE_LOG=1 node your-app.js
 ```
 
 Default port is `7337`.
+
+### Replacing console.log
+
+You can automatically replace `console.log` and other console methods with yoink by setting the `YOINK_REPLACE_CONSOLE_LOG` environment variable:
+
+```bash
+YOINK_REPLACE_CONSOLE_LOG=1 node your-app.js
+```
+
+When enabled, the following console methods are replaced:
+- `console.log` → `yoink()`
+- `console.info` → `yoink.info()`
+- `console.warn` → `yoink.warn()`
+- `console.error` → `yoink.error()`
+- `console.debug` → `yoink.debug()`
+
+Other console methods (like `console.dir`, `console.table`, `console.trace`, etc.) remain unchanged.
+
+**Browser usage:** In the browser, set `window.YOINK_REPLACE_CONSOLE_LOG = true` before importing yoink:
+
+```javascript
+window.YOINK_REPLACE_CONSOLE_LOG = true
+import yoink from "yoink-my-logs/browser"
+
+// Now console.log will use yoink
+console.log("This goes to yoink!")
+```
 
 ## API
 

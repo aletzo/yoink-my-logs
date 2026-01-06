@@ -99,3 +99,20 @@ yoink.last = (first, second) => createSlicedLog(first, second, data => {
 })
 yoink.last.five = (first, second) => createSlicedLog(first, second, data => sliceFromEnd(data, 5))
 yoink.last.ten = (first, second) => createSlicedLog(first, second, data => sliceFromEnd(data, 10))
+
+// Replace console methods with yoink if YOINK_REPLACE_CONSOLE_LOG is set
+if (process.env.YOINK_REPLACE_CONSOLE_LOG) {
+  const originalConsole = { ...console }
+  
+  // Replace console.log with yoink
+  console.log = yoink
+  
+  // Replace other console methods with their yoink equivalents
+  console.info = yoink.info
+  console.warn = yoink.warn
+  console.error = yoink.error
+  console.debug = yoink.debug
+  
+  // Preserve other console methods (dir, table, trace, etc.)
+  // They remain on the original console object
+}

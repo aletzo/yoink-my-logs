@@ -188,4 +188,31 @@ yoink.init = (options = {}) => {
   if (options.port) port = options.port
 }
 
+// Replace console methods with yoink if YOINK_REPLACE_CONSOLE_LOG is set
+// In browser, check for window.YOINK_REPLACE_CONSOLE_LOG or process.env (if available via bundler)
+if (typeof window !== 'undefined' && window.YOINK_REPLACE_CONSOLE_LOG) {
+  const originalConsole = { ...console }
+  
+  // Replace console.log with yoink
+  console.log = yoink
+  
+  // Replace other console methods with their yoink equivalents
+  console.info = yoink.info
+  console.warn = yoink.warn
+  console.error = yoink.error
+  console.debug = yoink.debug
+  
+  // Preserve other console methods (dir, table, trace, etc.)
+  // They remain on the original console object
+} else if (typeof process !== 'undefined' && process.env && process.env.YOINK_REPLACE_CONSOLE_LOG) {
+  // Support for Node.js-like environments (e.g., SSR)
+  const originalConsole = { ...console }
+  
+  console.log = yoink
+  console.info = yoink.info
+  console.warn = yoink.warn
+  console.error = yoink.error
+  console.debug = yoink.debug
+}
+
 export default yoink

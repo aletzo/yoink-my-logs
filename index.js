@@ -6,12 +6,12 @@ function parseArgs(first, second) {
   if (second !== undefined) {
     return { message: String(second), data: first }
   }
-  
+
   // Single string argument: treat as message
   if (typeof first === "string") {
     return { message: first, data: undefined }
   }
-  
+
   // Single non-string argument: treat as data
   return { message: "", data: first }
 }
@@ -25,14 +25,15 @@ function createLog(first, second, tag) {
     tag,
     timestamp: new Date().toISOString()
   }
-  
+
   if (caller) {
     log.location = {
-      file: caller.file,
-      line: caller.line
+      relativePath: caller.relativePath,
+      line: caller.line,
+      absolutePath: caller.absolutePath
     }
   }
-  
+
   pushLog(log)
 }
 
@@ -59,14 +60,15 @@ function createSlicedLog(first, second, slicer) {
     tag: undefined,
     timestamp: new Date().toISOString()
   }
-  
+
   if (caller) {
     log.location = {
-      file: caller.file,
-      line: caller.line
+      relativePath: caller.relativePath,
+      line: caller.line,
+      absolutePath: caller.absolutePath
     }
   }
-  
+
   pushLog(log)
 }
 

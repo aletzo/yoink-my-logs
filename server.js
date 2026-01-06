@@ -46,11 +46,11 @@ function getTodayFiles() {
 function todayFile() {
   const files = getTodayFiles()
   const prefix = todayPrefix()
-  
+
   if (files.length === 0) {
     return path.join(dir, `${prefix}.log`)
   }
-  
+
   // Return the latest (highest numbered) file
   return path.join(dir, files[files.length - 1])
 }
@@ -58,15 +58,15 @@ function todayFile() {
 function getNextLogFile() {
   const files = getTodayFiles()
   const prefix = todayPrefix()
-  
+
   if (files.length === 0) {
     return path.join(dir, `${prefix}.log`)
   }
-  
+
   const latestFile = files[files.length - 1]
   const match = latestFile.match(/_(\d+)\.log$/)
   const nextNum = match ? parseInt(match[1], 10) + 1 : 2
-  
+
   return path.join(dir, `${prefix}_${nextNum}.log`)
 }
 
@@ -91,7 +91,7 @@ const corsHeaders = {
 
 export function clearTodayLogs(res) {
   const files = getTodayFiles()
-  
+
   try {
     for (const fileName of files) {
       const filePath = path.join(dir, fileName)
@@ -119,30 +119,40 @@ export function handleYoink(req, res) {
   req.on("end", () => {
     try {
       const { message, data, tag, location } = JSON.parse(body)
-      
+
       if (message === undefined) {
         res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
         res.end(JSON.stringify({ success: false, error: "Missing message" }))
         return
       }
-      
+
       // Validate tag if provided
       if (tag !== undefined && !ALLOWED_TAGS.has(tag)) {
         res.writeHead(400, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
         res.end(JSON.stringify({ success: false, error: "Invalid tag" }))
         return
       }
-      
+
       const logEntry = { message: String(message), data, tag, timestamp: new Date().toISOString() }
-      
+
       // Include location if provided (from browser client or Node.js)
-      if (location && typeof location === 'object' && location.file && location.line) {
-        logEntry.location = {
-          file: String(location.file),
-          line: parseInt(location.line, 10)
+      if (location && typeof location === 'object') {
+        if (location.file && location.line) {
+          // Legacy support or if partial update
+          logEntry.location = {
+            relativePath: String(location.file),
+            line: parseInt(location.line, 10),
+            absolutePath: location.fullPath ? String(location.fullPath) : undefined
+          }
+        } else if (location.relativePath && location.line) {
+          logEntry.location = {
+            relativePath: String(location.relativePath),
+            line: parseInt(location.line, 10),
+            absolutePath: location.absolutePath ? String(location.absolutePath) : undefined
+          }
         }
       }
-      
+
       pushLog(logEntry)
       res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders, ...corsHeaders })
       res.end(JSON.stringify({ success: true }))
@@ -164,23 +174,23 @@ export function deleteLog(req, res) {
         res.end(JSON.stringify({ success: false, error: "Missing timestamp or message" }))
         return
       }
-      
+
       const files = getTodayFiles()
       let deleted = false
-      
+
       for (const fileName of files) {
         const filePath = path.join(dir, fileName)
         try {
           const content = fs.readFileSync(filePath, "utf8")
           const lines = content.split("\n")
           const filteredLines = []
-          
+
           for (const line of lines) {
             if (!line.trim()) {
               filteredLines.push(line)
               continue
             }
-            
+
             // Only delete the first match
             if (!deleted) {
               try {
@@ -193,10 +203,10 @@ export function deleteLog(req, res) {
                 // Not valid JSON, keep it
               }
             }
-            
+
             filteredLines.push(line)
           }
-          
+
           if (deleted) {
             fs.writeFileSync(filePath, filteredLines.join("\n"))
             break
@@ -205,7 +215,7 @@ export function deleteLog(req, res) {
           // File doesn't exist or can't be read, skip it
         }
       }
-      
+
       res.writeHead(200, { "Content-Type": "application/json", ...securityHeaders })
       res.end(JSON.stringify({ success: deleted }))
     } catch (err) {
@@ -219,13 +229,13 @@ export function deleteLog(req, res) {
 export function pushLog(log) {
   ensureDir()
   const line = JSON.stringify(log) + "\n"
-  
+
   // Prevent excessively large log entries
   if (line.length > MAX_LOG_SIZE) {
     console.warn("yoink: Log payload too large, skipping")
     return
   }
-  
+
   // Check if current file exceeds 100MB, rotate if needed
   let targetFile = todayFile()
   try {
@@ -236,7 +246,7 @@ export function pushLog(log) {
   } catch {
     // File doesn't exist yet, use default
   }
-  
+
   try {
     fs.appendFileSync(targetFile, line)
   } catch (err) {
@@ -327,7 +337,7 @@ function startStream(res) {
 function sendHistory(res) {
   // Read all of today's log files to show complete history
   const files = getTodayFiles()
-  
+
   for (const fileName of files) {
     try {
       const filePath = path.join(dir, fileName)
@@ -353,12 +363,12 @@ function sendHistory(res) {
 
 function followFile(res) {
   ensureDir()
-  
+
   let currentFile = todayFile()
   let pos = 0
   let fileWatcher = null
   let dirWatcher = null
-  
+
   // Create file if it doesn't exist
   if (!fs.existsSync(currentFile)) {
     fs.writeFileSync(currentFile, "")

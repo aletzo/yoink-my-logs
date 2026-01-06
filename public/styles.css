@@ -252,6 +252,11 @@ h1 {
   background: var(--bg-tertiary);
   border-radius: 4px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.location:hover {
+  opacity: 0.8;
 }
 .message {
   color: var(--text-primary);

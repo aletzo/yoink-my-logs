@@ -1,5 +1,8 @@
 # yoink-my-logs
 
+[![CI](https://github.com/aletzo/yoink-my-logs/actions/workflows/ci.yml/badge.svg)](https://github.com/aletzo/yoink-my-logs/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/aletzo/yoink-my-logs/graph/badge.svg)](https://codecov.io/gh/aletzo/yoink-my-logs)
+
 A better `console.log` for debugging. Zero dependencies. Drop `yoink()` calls anywhere in your code, Node.js or browser, and watch them stream live to a clean web UI with filtering, search, and proper JSON formatting.
 
 <img src="assets/yoink-screen-shot-main.jpg" width="700" alt="Main UI">

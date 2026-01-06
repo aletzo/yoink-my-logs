@@ -193,6 +193,8 @@ function createCollapsible(data, type, collapsed) {
     const previewKeys = keys.slice(0, 3).join(", ")
     preview.textContent = `{${previewKeys}${keys.length > 3 ? ", ..." : ""}}`
   }
+  // Initialize preview visibility based on collapsed state
+  preview.style.display = collapsed ? "inline" : "none"
   container.appendChild(preview)
 
   const content = document.createElement("div")
@@ -253,6 +255,66 @@ function createCollapsible(data, type, collapsed) {
   })
 
   return container
+}
+
+function expandAll(container) {
+  const collapsibles = container.querySelectorAll(".json-collapsible")
+  collapsibles.forEach(c => {
+    const content = c.querySelector(".json-content")
+    const toggle = c.querySelector(".json-toggle")
+    const preview = c.querySelector(".json-preview")
+
+    if (content && toggle && preview) {
+      content.style.display = "block"
+      preview.style.display = "none"
+      toggle.textContent = "▼"
+    }
+  })
+}
+
+function collapseAll(container) {
+  // Collapse all nested levels (but keep root expanded if it was passed)
+  // The 'container' passed here is usually the log-data wrapper
+  // We want to reset to state: Root expanded, all children collapsed
+
+  // First, find all collapsibles within the container
+  const collapsibles = container.querySelectorAll(".json-collapsible")
+
+  collapsibles.forEach(c => {
+    // If it's a direct child of the log-data container, we might treat it differently? 
+    // Actually, createJsonTree returns a structure. 
+    // The structure returned by createJsonTree(data, false) (root) has:
+    // span.json-collapsible > (toggle, preview, content)
+    // content > items > item > ...
+
+    // We want to set ALL collapsibles to collapsed state
+    const content = c.querySelector(".json-content")
+    const toggle = c.querySelector(".json-toggle")
+    const preview = c.querySelector(".json-preview")
+
+    if (content && toggle && preview) {
+      content.style.display = "none"
+      preview.style.display = "inline"
+      toggle.textContent = "▶"
+    }
+  })
+
+  // Now re-expand ONLY the top-level items
+  // The structure is: container > span.json-collapsible
+  // So we just find the direct children that are collapsibles and expand them
+  Array.from(container.children).forEach(child => {
+    if (child.classList.contains("json-collapsible")) {
+      const content = child.querySelector(".json-content")
+      const toggle = child.querySelector(".json-toggle")
+      const preview = child.querySelector(".json-preview")
+
+      if (content && toggle && preview) {
+        content.style.display = "block"
+        preview.style.display = "none"
+        toggle.textContent = "▼"
+      }
+    }
+  })
 }
 
 function createLogElement(log) {
@@ -355,6 +417,28 @@ function createLogElement(log) {
   if (log.data !== undefined) {
     const dataContainer = document.createElement("div")
     dataContainer.className = "log-data"
+
+    const isExpandable = typeof log.data === "object" && log.data !== null
+
+    if (isExpandable) {
+      const expandBtn = document.createElement("button")
+      expandBtn.className = "expand-btn"
+      expandBtn.textContent = "expand all"
+      expandBtn.onclick = () => {
+        if (expandBtn.textContent === "expand all") {
+          expandAll(dataContainer)
+          expandBtn.textContent = "collapse"
+        } else {
+          collapseAll(dataContainer)
+          expandBtn.textContent = "expand all"
+        }
+      }
+
+      // We want the button to appear near the JSON tree, perhaps floating top-right or just above
+      // For now, let's append it before the tree
+      dataContainer.appendChild(expandBtn)
+    }
+
     dataContainer.appendChild(createJsonTree(log.data, false))
     li.appendChild(dataContainer)
   }

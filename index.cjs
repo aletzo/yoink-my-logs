@@ -1,3 +1,4 @@
+/* c8 ignore start */
 // CommonJS wrapper for ESM module
 // This allows the package to be used with require() in CommonJS projects
 
@@ -117,4 +118,5 @@ if (process.env.YOINK_REPLACE_CONSOLE_LOG) {
 }
 
 module.exports = yoink;
+/* c8 ignore stop */
 

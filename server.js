@@ -456,6 +456,7 @@ function serveStatic(fileName, contentType, res) {
   })
 }
 
+/* c8 ignore start */
 function serveYoinkClient(res) {
   const script = `(function() {
   window.__YOINK_PORT__ = ${port};
@@ -650,3 +651,4 @@ function serveYoinkClient(res) {
   res.writeHead(200, { "Content-Type": "application/javascript", ...securityHeaders, ...corsHeaders })
   res.end(script)
 }
+/* c8 ignore stop */

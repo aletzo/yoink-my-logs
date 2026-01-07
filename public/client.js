@@ -1,275 +1,288 @@
-const el = document.getElementById("logs")
-const emptyState = document.getElementById("empty-state")
-const searchInput = document.getElementById("search")
-const clearBtn = document.getElementById("clear-logs")
-const events = new EventSource("/events")
+const el = document.getElementById("logs");
+const emptyState = document.getElementById("empty-state");
+const searchInput = document.getElementById("search");
+const clearBtn = document.getElementById("clear-logs");
+const events = new EventSource("/events");
 
 const tagColors = {
   info: "#3b82f6",
   warn: "#f59e0b",
   error: "#ef4444",
   debug: "#8b5cf6",
-  success: "#22c55e"
-}
+  success: "#22c55e",
+};
 
-let allLogs = []
-let searchQuery = ""
-let activeTags = new Set(["info", "warn", "error", "debug", "success", "none"])
+let allLogs = [];
+let searchQuery = "";
+let activeTags = new Set(["info", "warn", "error", "debug", "success", "none"]);
 
 // Theme toggle
-let currentMode = localStorage.getItem('yoink-theme') || 'system'
+let currentMode = localStorage.getItem("yoink-theme") || "system";
 
 function applyTheme(mode) {
-  currentMode = mode
-  localStorage.setItem('yoink-theme', mode)
+  currentMode = mode;
+  localStorage.setItem("yoink-theme", mode);
 
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const theme = mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const theme = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
 
-  if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light')
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
   } else {
-    document.documentElement.removeAttribute('data-theme')
+    document.documentElement.removeAttribute("data-theme");
   }
 
   // Update button states
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.mode === mode)
-  })
+  document.querySelectorAll(".theme-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
 }
 
 // Initialize theme buttons
-document.querySelectorAll('.theme-btn').forEach(btn => {
-  btn.addEventListener('click', () => applyTheme(btn.dataset.mode))
-})
+document.querySelectorAll(".theme-btn").forEach((btn) => {
+  btn.addEventListener("click", () => applyTheme(btn.dataset.mode));
+});
 
 // Listen for system theme changes
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-  if (currentMode === 'system') applyTheme('system')
-})
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", () => {
+    if (currentMode === "system") applyTheme("system");
+  });
 
 // Apply initial theme
-applyTheme(currentMode)
+applyTheme(currentMode);
 
 // Initialize filter buttons
-document.querySelectorAll(".filter-btn").forEach(btn => {
+document.querySelectorAll(".filter-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const tag = btn.dataset.tag
+    const tag = btn.dataset.tag;
 
     if (tag === "all") {
-      const allActive = activeTags.size === 6
+      const allActive = activeTags.size === 6;
       if (allActive) {
-        activeTags.clear()
-        document.querySelectorAll(".filter-btn:not([data-tag='all'])").forEach(b => b.classList.remove("active"))
+        activeTags.clear();
+        document
+          .querySelectorAll(".filter-btn:not([data-tag='all'])")
+          .forEach((b) => b.classList.remove("active"));
       } else {
-        activeTags = new Set(["info", "warn", "error", "debug", "success", "none"])
-        document.querySelectorAll(".filter-btn:not([data-tag='all'])").forEach(b => b.classList.add("active"))
+        activeTags = new Set([
+          "info",
+          "warn",
+          "error",
+          "debug",
+          "success",
+          "none",
+        ]);
+        document
+          .querySelectorAll(".filter-btn:not([data-tag='all'])")
+          .forEach((b) => b.classList.add("active"));
       }
-      btn.classList.toggle("active", !allActive)
+      btn.classList.toggle("active", !allActive);
     } else {
       if (activeTags.has(tag)) {
-        activeTags.delete(tag)
-        btn.classList.remove("active")
+        activeTags.delete(tag);
+        btn.classList.remove("active");
       } else {
-        activeTags.add(tag)
-        btn.classList.add("active")
+        activeTags.add(tag);
+        btn.classList.add("active");
       }
       // Update "all" button state
-      const allBtn = document.querySelector(".filter-btn[data-tag='all']")
-      allBtn.classList.toggle("active", activeTags.size === 6)
+      const allBtn = document.querySelector(".filter-btn[data-tag='all']");
+      allBtn.classList.toggle("active", activeTags.size === 6);
     }
 
-    renderLogs()
-  })
-})
+    renderLogs();
+  });
+});
 
 // Search input
 searchInput.addEventListener("input", (e) => {
-  searchQuery = e.target.value.toLowerCase()
-  renderLogs()
-})
+  searchQuery = e.target.value.toLowerCase();
+  renderLogs();
+});
 
 // Clear logs button
 clearBtn.addEventListener("click", async () => {
-  if (!confirm("Clear all logs from today's file?")) return
+  if (!confirm("Clear all logs from today's file?")) return;
 
-  clearBtn.disabled = true
-  clearBtn.textContent = "Clearing..."
+  clearBtn.disabled = true;
+  clearBtn.textContent = "Clearing...";
 
   try {
-    const res = await fetch("/clear", { method: "POST" })
-    const data = await res.json()
+    const res = await fetch("/clear", { method: "POST" });
+    const data = await res.json();
 
     if (data.success) {
-      allLogs = []
-      renderLogs()
-      clearBtn.textContent = "Cleared!"
+      allLogs = [];
+      renderLogs();
+      clearBtn.textContent = "Cleared!";
       setTimeout(() => {
-        clearBtn.textContent = "Clear"
-        clearBtn.disabled = false
-      }, 1500)
+        clearBtn.textContent = "Clear";
+        clearBtn.disabled = false;
+      }, 1500);
     } else {
-      throw new Error(data.error || "Failed to clear logs")
+      throw new Error(data.error || "Failed to clear logs");
     }
   } catch (err) {
-    console.error("yoink: Failed to clear logs:", err.message)
-    clearBtn.textContent = "Error!"
+    console.error("yoink: Failed to clear logs:", err.message);
+    clearBtn.textContent = "Error!";
     setTimeout(() => {
-      clearBtn.textContent = "Clear"
-      clearBtn.disabled = false
-    }, 1500)
+      clearBtn.textContent = "Clear";
+      clearBtn.disabled = false;
+    }, 1500);
   }
-})
+});
 
 function matchesFilter(log) {
-  const logTag = log.tag || "none"
-  if (!activeTags.has(logTag)) return false
+  const logTag = log.tag || "none";
+  if (!activeTags.has(logTag)) return false;
 
   if (searchQuery) {
-    const searchText = JSON.stringify(log).toLowerCase()
-    if (!searchText.includes(searchQuery)) return false
+    const searchText = JSON.stringify(log).toLowerCase();
+    if (!searchText.includes(searchQuery)) return false;
   }
 
-  return true
+  return true;
 }
 
 function updateEmptyState() {
-  emptyState.style.display = allLogs.length === 0 ? "block" : "none"
+  emptyState.style.display = allLogs.length === 0 ? "block" : "none";
 }
 
 function renderLogs() {
-  el.innerHTML = ""
-  const filtered = allLogs.filter(matchesFilter)
+  el.innerHTML = "";
+  const filtered = allLogs.filter(matchesFilter);
   // Show logs in chronological order (oldest first, newest at bottom)
-  filtered.forEach(log => {
-    el.appendChild(createLogElement(log))
-  })
-  updateEmptyState()
+  filtered.forEach((log) => {
+    el.appendChild(createLogElement(log));
+  });
+  updateEmptyState();
 }
 
 function createJsonTree(data, collapsed = true) {
-  if (data === null) return createPrimitive("null", "null")
-  if (data === undefined) return createPrimitive("undefined", "undefined")
+  if (data === null) return createPrimitive("null", "null");
+  if (data === undefined) return createPrimitive("undefined", "undefined");
 
-  const type = typeof data
-  if (type === "string") return createPrimitive(`"${data}"`, "string")
-  if (type === "number") return createPrimitive(String(data), "number")
-  if (type === "boolean") return createPrimitive(String(data), "boolean")
+  const type = typeof data;
+  if (type === "string") return createPrimitive(`"${data}"`, "string");
+  if (type === "number") return createPrimitive(String(data), "number");
+  if (type === "boolean") return createPrimitive(String(data), "boolean");
 
   if (Array.isArray(data)) {
-    return createCollapsible(data, "array", collapsed)
+    return createCollapsible(data, "array", collapsed);
   }
 
   if (type === "object") {
-    return createCollapsible(data, "object", collapsed)
+    return createCollapsible(data, "object", collapsed);
   }
 
-  return createPrimitive(String(data), "unknown")
+  return createPrimitive(String(data), "unknown");
 }
 
 function createPrimitive(text, className) {
-  const span = document.createElement("span")
-  span.className = `json-${className}`
-  span.textContent = text
-  return span
+  const span = document.createElement("span");
+  span.className = `json-${className}`;
+  span.textContent = text;
+  return span;
 }
 
 function createCollapsible(data, type, collapsed) {
-  const isArray = type === "array"
-  const keys = Object.keys(data)
-  const container = document.createElement("span")
-  container.className = "json-collapsible"
+  const isArray = type === "array";
+  const keys = Object.keys(data);
+  const container = document.createElement("span");
+  container.className = "json-collapsible";
 
-  const toggle = document.createElement("span")
-  toggle.className = "json-toggle"
-  toggle.textContent = collapsed ? "▶" : "▼"
-  container.appendChild(toggle)
+  const toggle = document.createElement("span");
+  toggle.className = "json-toggle";
+  toggle.textContent = collapsed ? "▶" : "▼";
+  container.appendChild(toggle);
 
-  const preview = document.createElement("span")
-  preview.className = "json-preview"
+  const preview = document.createElement("span");
+  preview.className = "json-preview";
   if (isArray) {
-    preview.textContent = `Array(${keys.length})`
+    preview.textContent = `Array(${keys.length})`;
   } else {
-    const previewKeys = keys.slice(0, 3).join(", ")
-    preview.textContent = `{${previewKeys}${keys.length > 3 ? ", ..." : ""}}`
+    const previewKeys = keys.slice(0, 3).join(", ");
+    preview.textContent = `{${previewKeys}${keys.length > 3 ? ", ..." : ""}}`;
   }
   // Initialize preview visibility based on collapsed state
-  preview.style.display = collapsed ? "inline" : "none"
-  container.appendChild(preview)
+  preview.style.display = collapsed ? "inline" : "none";
+  container.appendChild(preview);
 
-  const content = document.createElement("div")
-  content.className = "json-content"
-  content.style.display = collapsed ? "none" : "block"
+  const content = document.createElement("div");
+  content.className = "json-content";
+  content.style.display = collapsed ? "none" : "block";
 
-  const bracket = isArray ? "[" : "{"
-  const closeBracket = isArray ? "]" : "}"
+  const bracket = isArray ? "[" : "{";
+  const closeBracket = isArray ? "]" : "}";
 
-  const open = document.createElement("div")
-  open.className = "json-bracket"
-  open.textContent = bracket
-  content.appendChild(open)
+  const open = document.createElement("div");
+  open.className = "json-bracket";
+  open.textContent = bracket;
+  content.appendChild(open);
 
-  const items = document.createElement("div")
-  items.className = "json-items"
+  const items = document.createElement("div");
+  items.className = "json-items";
 
   keys.forEach((key, i) => {
-    const item = document.createElement("div")
-    item.className = "json-item"
+    const item = document.createElement("div");
+    item.className = "json-item";
 
     if (!isArray) {
-      const keySpan = document.createElement("span")
-      keySpan.className = "json-key"
-      keySpan.textContent = `"${key}"`
-      item.appendChild(keySpan)
+      const keySpan = document.createElement("span");
+      keySpan.className = "json-key";
+      keySpan.textContent = `"${key}"`;
+      item.appendChild(keySpan);
 
-      const colon = document.createElement("span")
-      colon.textContent = ": "
-      item.appendChild(colon)
+      const colon = document.createElement("span");
+      colon.textContent = ": ";
+      item.appendChild(colon);
     }
 
-    item.appendChild(createJsonTree(data[key], true))
+    item.appendChild(createJsonTree(data[key], true));
 
     if (i < keys.length - 1) {
-      const comma = document.createElement("span")
-      comma.textContent = ","
-      item.appendChild(comma)
+      const comma = document.createElement("span");
+      comma.textContent = ",";
+      item.appendChild(comma);
     }
 
-    items.appendChild(item)
-  })
+    items.appendChild(item);
+  });
 
-  content.appendChild(items)
+  content.appendChild(items);
 
-  const close = document.createElement("div")
-  close.className = "json-bracket"
-  close.textContent = closeBracket
-  content.appendChild(close)
+  const close = document.createElement("div");
+  close.className = "json-bracket";
+  close.textContent = closeBracket;
+  content.appendChild(close);
 
-  container.appendChild(content)
+  container.appendChild(content);
 
   toggle.addEventListener("click", () => {
-    const isHidden = content.style.display === "none"
-    content.style.display = isHidden ? "block" : "none"
-    preview.style.display = isHidden ? "none" : "inline"
-    toggle.textContent = isHidden ? "▼" : "▶"
-  })
+    const isHidden = content.style.display === "none";
+    content.style.display = isHidden ? "block" : "none";
+    preview.style.display = isHidden ? "none" : "inline";
+    toggle.textContent = isHidden ? "▼" : "▶";
+  });
 
-  return container
+  return container;
 }
 
 function expandAll(container) {
-  const collapsibles = container.querySelectorAll(".json-collapsible")
-  collapsibles.forEach(c => {
-    const content = c.querySelector(".json-content")
-    const toggle = c.querySelector(".json-toggle")
-    const preview = c.querySelector(".json-preview")
+  const collapsibles = container.querySelectorAll(".json-collapsible");
+  collapsibles.forEach((c) => {
+    const content = c.querySelector(".json-content");
+    const toggle = c.querySelector(".json-toggle");
+    const preview = c.querySelector(".json-preview");
 
     if (content && toggle && preview) {
-      content.style.display = "block"
-      preview.style.display = "none"
-      toggle.textContent = "▼"
+      content.style.display = "block";
+      preview.style.display = "none";
+      toggle.textContent = "▼";
     }
-  })
+  });
 }
 
 function collapseAll(container) {
@@ -278,184 +291,191 @@ function collapseAll(container) {
   // We want to reset to state: Root expanded, all children collapsed
 
   // First, find all collapsibles within the container
-  const collapsibles = container.querySelectorAll(".json-collapsible")
+  const collapsibles = container.querySelectorAll(".json-collapsible");
 
-  collapsibles.forEach(c => {
-    // If it's a direct child of the log-data container, we might treat it differently? 
-    // Actually, createJsonTree returns a structure. 
+  collapsibles.forEach((c) => {
+    // If it's a direct child of the log-data container, we might treat it differently?
+    // Actually, createJsonTree returns a structure.
     // The structure returned by createJsonTree(data, false) (root) has:
     // span.json-collapsible > (toggle, preview, content)
     // content > items > item > ...
 
     // We want to set ALL collapsibles to collapsed state
-    const content = c.querySelector(".json-content")
-    const toggle = c.querySelector(".json-toggle")
-    const preview = c.querySelector(".json-preview")
+    const content = c.querySelector(".json-content");
+    const toggle = c.querySelector(".json-toggle");
+    const preview = c.querySelector(".json-preview");
 
     if (content && toggle && preview) {
-      content.style.display = "none"
-      preview.style.display = "inline"
-      toggle.textContent = "▶"
+      content.style.display = "none";
+      preview.style.display = "inline";
+      toggle.textContent = "▶";
     }
-  })
+  });
 
   // Now re-expand ONLY the top-level items
   // The structure is: container > span.json-collapsible
   // So we just find the direct children that are collapsibles and expand them
-  Array.from(container.children).forEach(child => {
+  Array.from(container.children).forEach((child) => {
     if (child.classList.contains("json-collapsible")) {
-      const content = child.querySelector(".json-content")
-      const toggle = child.querySelector(".json-toggle")
-      const preview = child.querySelector(".json-preview")
+      const content = child.querySelector(".json-content");
+      const toggle = child.querySelector(".json-toggle");
+      const preview = child.querySelector(".json-preview");
 
       if (content && toggle && preview) {
-        content.style.display = "block"
-        preview.style.display = "none"
-        toggle.textContent = "▼"
+        content.style.display = "block";
+        preview.style.display = "none";
+        toggle.textContent = "▼";
       }
     }
-  })
+  });
 }
 
 function createLogElement(log) {
-  const li = document.createElement("li")
+  const li = document.createElement("li");
 
-  const header = document.createElement("div")
-  header.className = "log-header"
+  const header = document.createElement("div");
+  header.className = "log-header";
 
-  const time = document.createElement("span")
-  time.className = "time"
-  time.textContent = `[${log.timestamp}]`
-  header.appendChild(time)
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = `[${log.timestamp}]`;
+  header.appendChild(time);
 
   if (log.tag) {
-    const tag = document.createElement("span")
-    tag.className = "tag"
-    tag.textContent = log.tag.toUpperCase()
-    tag.style.backgroundColor = tagColors[log.tag] || "#6b7280"
-    header.appendChild(tag)
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = log.tag.toUpperCase();
+    tag.style.backgroundColor = tagColors[log.tag] || "#6b7280";
+    header.appendChild(tag);
   }
 
   if (log.location) {
-    const locationSpan = document.createElement("span")
-    locationSpan.className = "location"
+    const locationSpan = document.createElement("span");
+    locationSpan.className = "location";
 
     // Default to relative path
-    const relativePath = `${log.location.relativePath}:${log.location.line}`
-    const absolutePath = log.location.absolutePath ? `${log.location.absolutePath}:${log.location.line}` : relativePath
+    const relativePath = `${log.location.relativePath}:${log.location.line}`;
+    const absolutePath = log.location.absolutePath
+      ? `${log.location.absolutePath}:${log.location.line}`
+      : relativePath;
 
-    locationSpan.textContent = relativePath
-    locationSpan.title = absolutePath // Hover shows absolute path by default
+    locationSpan.textContent = relativePath;
+    locationSpan.title = absolutePath; // Hover shows absolute path by default
 
     // Toggle on click
     locationSpan.addEventListener("click", () => {
       if (locationSpan.textContent === relativePath) {
-        locationSpan.textContent = absolutePath
-        locationSpan.title = relativePath
+        locationSpan.textContent = absolutePath;
+        locationSpan.title = relativePath;
       } else {
-        locationSpan.textContent = relativePath
-        locationSpan.title = absolutePath
+        locationSpan.textContent = relativePath;
+        locationSpan.title = absolutePath;
       }
-    })
+    });
 
-    header.appendChild(locationSpan)
+    header.appendChild(locationSpan);
   }
 
-  const msg = document.createElement("span")
-  msg.className = "message"
-  msg.textContent = log.message
-  header.appendChild(msg)
+  const msg = document.createElement("span");
+  msg.className = "message";
+  msg.textContent = log.message;
+  header.appendChild(msg);
 
-  const copyBtn = document.createElement("button")
-  copyBtn.className = "copy-btn"
-  copyBtn.textContent = "copy"
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "copy-btn";
+  copyBtn.textContent = "copy";
   copyBtn.addEventListener("click", async () => {
-    const content = JSON.stringify(log, null, 2)
-    await navigator.clipboard.writeText(content)
-    copyBtn.textContent = "copied!"
-    setTimeout(() => copyBtn.textContent = "copy", 1500)
-  })
-  header.appendChild(copyBtn)
+    const content = JSON.stringify(log, null, 2);
+    await navigator.clipboard.writeText(content);
+    copyBtn.textContent = "copied!";
+    setTimeout(() => (copyBtn.textContent = "copy"), 1500);
+  });
+  header.appendChild(copyBtn);
 
-  const deleteBtn = document.createElement("button")
-  deleteBtn.className = "delete-btn"
-  deleteBtn.textContent = "×"
-  deleteBtn.title = "Delete this log"
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.textContent = "×";
+  deleteBtn.title = "Delete this log";
   deleteBtn.addEventListener("click", async () => {
-    deleteBtn.disabled = true
-    deleteBtn.textContent = "..."
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = "...";
 
     try {
       const res = await fetch("/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ timestamp: log.timestamp, message: log.message })
-      })
-      const data = await res.json()
+        body: JSON.stringify({
+          timestamp: log.timestamp,
+          message: log.message,
+        }),
+      });
+      const data = await res.json();
 
       if (data.success) {
         // Remove from local array
-        const index = allLogs.findIndex(l => l.timestamp === log.timestamp && l.message === log.message)
-        if (index !== -1) allLogs.splice(index, 1)
+        const index = allLogs.findIndex(
+          (l) => l.timestamp === log.timestamp && l.message === log.message
+        );
+        if (index !== -1) allLogs.splice(index, 1);
         // Remove from DOM
-        li.remove()
-        updateEmptyState()
+        li.remove();
+        updateEmptyState();
       } else {
-        throw new Error(data.error || "Failed to delete log")
+        throw new Error(data.error || "Failed to delete log");
       }
     } catch (err) {
-      console.error("yoink: Failed to delete log:", err.message)
-      deleteBtn.textContent = "!"
-      deleteBtn.disabled = false
-      setTimeout(() => deleteBtn.textContent = "×", 1500)
+      console.error("yoink: Failed to delete log:", err.message);
+      deleteBtn.textContent = "!";
+      deleteBtn.disabled = false;
+      setTimeout(() => (deleteBtn.textContent = "×"), 1500);
     }
-  })
-  header.appendChild(deleteBtn)
+  });
+  header.appendChild(deleteBtn);
 
-  li.appendChild(header)
+  li.appendChild(header);
 
   if (log.data !== undefined) {
-    const dataContainer = document.createElement("div")
-    dataContainer.className = "log-data"
+    const dataContainer = document.createElement("div");
+    dataContainer.className = "log-data";
 
-    const isExpandable = typeof log.data === "object" && log.data !== null
+    const isExpandable = typeof log.data === "object" && log.data !== null;
 
     if (isExpandable) {
-      const expandBtn = document.createElement("button")
-      expandBtn.className = "expand-btn"
-      expandBtn.textContent = "expand all"
+      const expandBtn = document.createElement("button");
+      expandBtn.className = "expand-btn";
+      expandBtn.textContent = "expand all";
       expandBtn.onclick = () => {
         if (expandBtn.textContent === "expand all") {
-          expandAll(dataContainer)
-          expandBtn.textContent = "collapse"
+          expandAll(dataContainer);
+          expandBtn.textContent = "collapse";
         } else {
-          collapseAll(dataContainer)
-          expandBtn.textContent = "expand all"
+          collapseAll(dataContainer);
+          expandBtn.textContent = "expand all";
         }
-      }
+      };
 
       // We want the button to appear near the JSON tree, perhaps floating top-right or just above
       // For now, let's append it before the tree
-      dataContainer.appendChild(expandBtn)
+      dataContainer.appendChild(expandBtn);
     }
 
-    dataContainer.appendChild(createJsonTree(log.data, false))
-    li.appendChild(dataContainer)
+    dataContainer.appendChild(createJsonTree(log.data, false));
+    li.appendChild(dataContainer);
   }
 
-  return li
+  return li;
 }
 
 events.onmessage = (e) => {
   try {
-    const log = JSON.parse(e.data)
-    allLogs.push(log)
-    updateEmptyState()
+    const log = JSON.parse(e.data);
+    allLogs.push(log);
+    updateEmptyState();
 
     if (matchesFilter(log)) {
-      el.appendChild(createLogElement(log))
+      el.appendChild(createLogElement(log));
     }
   } catch (err) {
-    console.error("yoink: Failed to parse log data:", err.message)
+    console.error("yoink: Failed to parse log data:", err.message);
   }
-}
+};

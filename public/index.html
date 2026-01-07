@@ -1,51 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>yoink my logs</title>
-  <link rel="stylesheet" href="/styles.css">
-  <script>
-    // Apply theme before page renders to prevent flash
-    (function() {
-      const saved = localStorage.getItem('yoink-theme') || 'system';
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved === 'system' ? (prefersDark ? 'dark' : 'light') : saved;
-      if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-    })();
-  </script>
-</head>
-<body>
-  <div class="main-content">
-    <div class="top-bar">
-      <div class="header">
-        <h1>yoink my logs</h1>
-        <div class="theme-toggle">
-          <button class="theme-btn" data-mode="light" title="Light">light️</button>
-          <button class="theme-btn" data-mode="dark" title="Dark">dark️</button>
-          <button class="theme-btn" data-mode="system" title="System">system️</button>
+  <head>
+    <meta charset="utf-8" />
+    <title>yoink my logs</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script>
+      // Apply theme before page renders to prevent flash
+      (function () {
+        const saved = localStorage.getItem("yoink-theme") || "system";
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const theme =
+          saved === "system" ? (prefersDark ? "dark" : "light") : saved;
+        if (theme === "light")
+          document.documentElement.setAttribute("data-theme", "light");
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="main-content">
+      <div class="top-bar">
+        <div class="header">
+          <h1>yoink my logs</h1>
+          <div class="theme-toggle">
+            <button class="theme-btn" data-mode="light" title="Light">
+              light️
+            </button>
+            <button class="theme-btn" data-mode="dark" title="Dark">
+              dark️
+            </button>
+            <button class="theme-btn" data-mode="system" title="System">
+              system️
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <input type="text" id="search" placeholder="Search logs..." />
+          </div>
+          <div class="filters">
+            <button class="filter-btn active" data-tag="all">All</button>
+            <button class="filter-btn active" data-tag="info">Info</button>
+            <button class="filter-btn active" data-tag="success">
+              Success
+            </button>
+            <button class="filter-btn active" data-tag="warn">Warn</button>
+            <button class="filter-btn active" data-tag="error">Error</button>
+            <button class="filter-btn active" data-tag="debug">Debug</button>
+            <button class="filter-btn active" data-tag="none">No Tag</button>
+          </div>
+          <button class="clear-btn" id="clear-logs">Clear all</button>
         </div>
       </div>
-      
-      <div class="toolbar">
-        <div class="search-box">
-          <input type="text" id="search" placeholder="Search logs...">
-        </div>
-        <div class="filters">
-          <button class="filter-btn active" data-tag="all">All</button>
-          <button class="filter-btn active" data-tag="info">Info</button>
-          <button class="filter-btn active" data-tag="success">Success</button>
-          <button class="filter-btn active" data-tag="warn">Warn</button>
-          <button class="filter-btn active" data-tag="error">Error</button>
-          <button class="filter-btn active" data-tag="debug">Debug</button>
-          <button class="filter-btn active" data-tag="none">No Tag</button>
-        </div>
-        <button class="clear-btn" id="clear-logs">Clear all</button>
-      </div>
-    </div>
-    
-    <div id="empty-state" class="empty-state">
-      <h2>No logs yet</h2>
-      <pre><span class="keyword">import</span> yoink <span class="keyword">from</span> <span class="string">"yoink-my-logs"</span>
+
+      <div id="empty-state" class="empty-state">
+        <h2>No logs yet</h2>
+        <pre><span class="keyword">import</span> yoink <span class="keyword">from</span> <span class="string">"yoink-my-logs"</span>
 
 <span class="comment">// Log data directly</span>
 <span class="function">yoink</span>({ userId: <span class="number">123</span>, action: <span class="string">"click"</span> })
@@ -57,17 +69,24 @@
 yoink.<span class="function">info</span>({ port: <span class="number">3000</span> }, <span class="string">"Server started"</span>)
 yoink.<span class="function">error</span>({ code: <span class="string">"ETIMEDOUT"</span> }, <span class="string">"Connection failed"</span>)
 yoink.<span class="function">debug</span>(data)</pre>
-      <p>Add <code>yoink()</code> calls to your code and logs will appear here in real-time.</p>
-      <p><a href="https://github.com/aletzo/yoink-my-logs" target="_blank">View documentation on GitHub →</a></p>
+        <p>
+          Add <code>yoink()</code> calls to your code and logs will appear here
+          in real-time.
+        </p>
+        <p>
+          <a href="https://github.com/aletzo/yoink-my-logs" target="_blank"
+            >View documentation on GitHub →</a
+          >
+        </p>
+      </div>
+
+      <ul id="logs"></ul>
     </div>
-    
-    <ul id="logs"></ul>
-  </div>
-  
-  <footer class="footer">
-    <a href="https://mydevnull.net" target="_blank">~/dev/null</a>
-  </footer>
-  
-  <script src="/client.js"></script>
-</body>
+
+    <footer class="footer">
+      <a href="https://mydevnull.net" target="_blank">~/dev/null</a>
+    </footer>
+
+    <script src="/client.js"></script>
+  </body>
 </html>

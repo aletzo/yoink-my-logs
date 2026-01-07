@@ -1,8 +1,7 @@
 export interface CallerInfo {
-  file: string
-  line: number
-  fullPath: string
+  file: string;
+  line: number;
+  fullPath: string;
 }
 
-export function getCallerInfo(): CallerInfo | null
-
+export function getCallerInfo(): CallerInfo | null;

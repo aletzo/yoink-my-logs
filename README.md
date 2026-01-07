@@ -1,6 +1,8 @@
 # yoink-my-logs
 
 [![Beta](https://img.shields.io/badge/status-beta-orange)](https://github.com/aletzo/yoink-my-logs)
+[![GitHub Release](https://img.shields.io/github/v/release/aletzo/yoink-my-logs)](https://github.com/aletzo/yoink-my-logs/releases/latest)
+
 [![CI](https://github.com/aletzo/yoink-my-logs/actions/workflows/ci.yml/badge.svg)](https://github.com/aletzo/yoink-my-logs/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/aletzo/yoink-my-logs/graph/badge.svg)](https://codecov.io/gh/aletzo/yoink-my-logs)
 

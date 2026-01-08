@@ -4,6 +4,21 @@ const DEFAULT_PORT = 7337;
 let host = DEFAULT_HOST;
 let port = DEFAULT_PORT;
 
+// Check if yoink is disabled (allows code to be pushed to prod with yoink() calls)
+function isDisabled() {
+  if (typeof window !== "undefined" && window.YOINK_DISABLED) {
+    return true;
+  }
+  if (
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.YOINK_DISABLED
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function getBaseUrl() {
   return `http://${host}:${port}`;
 }
@@ -109,6 +124,7 @@ function parseArgs(first, second) {
 }
 
 function send(first, second, tag) {
+  if (isDisabled()) return;
   const { message, data } = parseArgs(first, second);
   const caller = getCallerInfo();
 
@@ -142,6 +158,7 @@ function sliceFromEnd(data, count) {
 }
 
 function sendSliced(first, second, slicer) {
+  if (isDisabled()) return;
   const { message, data } = parseArgs(first, second);
   const slicedData = slicer(data);
   const caller = getCallerInfo();

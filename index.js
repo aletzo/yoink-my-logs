@@ -1,6 +1,11 @@
 import { pushLog } from "./server.js";
 import { getCallerInfo } from "./get-caller.js";
 
+// Check if yoink is disabled (allows code to be pushed to prod with yoink() calls)
+function isDisabled() {
+  return !!process.env.YOINK_DISABLED;
+}
+
 function parseArgs(first, second) {
   // Two arguments: first is data, second is message
   if (second !== undefined) {
@@ -17,6 +22,7 @@ function parseArgs(first, second) {
 }
 
 function createLog(first, second, tag) {
+  if (isDisabled()) return;
   const { message, data } = parseArgs(first, second);
   const caller = getCallerInfo();
   const log = {
@@ -51,6 +57,7 @@ function sliceFromEnd(data, count) {
 }
 
 function createSlicedLog(first, second, slicer) {
+  if (isDisabled()) return;
   const { message, data } = parseArgs(first, second);
   const slicedData = slicer(data);
   const caller = getCallerInfo();

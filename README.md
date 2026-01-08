@@ -127,6 +127,7 @@ The `init()` call is optional — if you don't call it, it defaults to `localhos
 | --------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | `YOINK_PORT`                | `7337`             | Port for the web UI                                                                                                           |
 | `YOINK_LOG_DIR`             | `~/.yoink-my-logs` | Directory where log files are stored                                                                                          |
+| `YOINK_DISABLED`            | -                  | When set, disables all yoink logging (allows yoink() calls to remain in production code)                                      |
 | `YOINK_REPLACE_CONSOLE_LOG` | -                  | When set, replaces `console.log`, `console.info`, `console.warn`, `console.error`, and `console.debug` with yoink equivalents |
 
 ### Examples
@@ -143,9 +144,35 @@ YOINK_PORT=8080 YOINK_LOG_DIR=/var/log/yoink npx yoink
 
 # Replace console.log with yoink
 YOINK_REPLACE_CONSOLE_LOG=1 node your-app.js
+
+# Disable yoink in production (yoink() calls become no-ops)
+YOINK_DISABLED=1 node your-app.js
 ```
 
 Default port is `7337`.
+
+### Disabling yoink in Production
+
+If you want to leave `yoink()` calls in your codebase but disable them in production, set the `YOINK_DISABLED` environment variable:
+
+```bash
+# Development - yoink works normally
+node your-app.js
+
+# Production - yoink() calls do nothing
+YOINK_DISABLED=1 node your-app.js
+```
+
+**Browser usage:** In the browser, set `window.YOINK_DISABLED = true` before importing yoink:
+
+```javascript
+// Disable based on environment
+window.YOINK_DISABLED = process.env.NODE_ENV === "production";
+import yoink from "yoink-my-logs/browser";
+
+// yoink calls will be ignored in production
+yoink("This only logs in development");
+```
 
 ### Replacing console.log
 
